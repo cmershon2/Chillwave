@@ -13,16 +13,5 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  postgres:
-    image: postgres:15
-    environment:
-      - POSTGRES_DB=mydb
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
 volumes:
   db_data:
