@@ -1,6 +1,8 @@
+import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
-import { Strategy } from "passport-discord";
+import { Profile, Strategy } from "passport-discord";
 
+@Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy) {
 
     constructor() {
@@ -9,8 +11,12 @@ export class DiscordStrategy extends PassportStrategy(Strategy) {
         super({
             clientID: process.env.OAUTH_DISCORD_CLIENT_ID,
             clientSecret: process.env.OAUTH_DISCORD_CLIENT_SECRET,
-            callbackURL: 'callbackURL',
+            callbackURL: process.env.OAUTH_DISCORD_CALLBACK_URL,
             scope: scopes
         });
+    }
+
+    async validate(accessToken: string, refreshToken: string, profile: Profile) {
+        console.log(accessToken, refreshToken, profile)
     }
 }
