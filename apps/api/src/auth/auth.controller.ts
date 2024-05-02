@@ -1,20 +1,47 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { DiscordAuthGuard } from './utils/Guards';
-
+import {
+    Body,
+    ClassSerializerInterceptor,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Post,
+    UseGuards,
+    UseInterceptors,
+} from '@nestjs/common';
+  
+import { AuthUser } from '../user/decorators/user.decorator';
+import { AuthService } from './auth.service';
+import { SignUp } from './dto/sign-up.dto';
+import { JWTAuthGuard } from './guards/jwt-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { SessionAuthGuard } from './guards/session-auth.guard';
+import { User } from '@prisma/client';
+import { TokenInterceptor } from './interceptors/token.interceptor';
+  
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-
-    // auth/discord/redirect
-    @Get('discord/login')
-    @UseGuards(DiscordAuthGuard)
-    handleDiscordLogin(){
-        return {msg: 'Discord Authentication'}
+    constructor(private readonly authService: AuthService) {}
+  
+    @Post('register')
+    @HttpCode(HttpStatus.CREATED)
+    @UseInterceptors(TokenInterceptor)
+    register(@Body() signUp: SignUp): Promise<User> {
+      return this.authService.register(signUp);
     }
-
-    // auth/discord/redirect
-    @Get('discord/redirect')
-    @UseGuards(DiscordAuthGuard)
-    handleDiscordRedirect(){
-        return {msg: 'OK'}
+  
+    @Post('login')
+    @UseGuards(LocalAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    @UseInterceptors(TokenInterceptor)
+    async login(@AuthUser() user: User): Promise<User> {
+      return user;
     }
-}
+  
+    @Get('/me')
+    @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    me(@AuthUser() user: User): User {
+      return user;
+    }
+  }
