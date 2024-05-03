@@ -19,7 +19,9 @@ import { SessionAuthGuard } from './guards/session-auth.guard';
 import { User } from '@prisma/client';
 import { TokenInterceptor } from './interceptors/token.interceptor';
 import { CreateUserDTO } from 'src/user/dto/create-user.dto';
-  
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Auth')
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
