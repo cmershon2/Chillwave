@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { setup } from './setup';
 
 declare const module: any;
 async function bootstrap() {
@@ -20,6 +21,8 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, document);
 
   const PORT = 5002;
+
+  setup(app)
 
   await app.listen(PORT);
 
