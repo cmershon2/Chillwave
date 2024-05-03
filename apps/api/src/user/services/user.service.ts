@@ -13,6 +13,7 @@ export class UserService {
 
     async create(data: CreateUserDTO ): Promise<User> {
         const passwordHash = await hashPassword(data.password);
+
         const user = await this.prismaService.user.create({
             data:{
                 email: data.email,
@@ -20,6 +21,7 @@ export class UserService {
                 password: passwordHash,
             }
         });
+
         return user;
     }
 

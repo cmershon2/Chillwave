@@ -3,6 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+
 import { PrismaService } from 'src/persistence/prisma/prisma.service';
 
 
@@ -13,8 +14,12 @@ export class IsUserAlreadyExist implements ValidatorConstraintInterface {
   constructor( private readonly prismaService: PrismaService) {}
 
   async validate(email: string): Promise<boolean> {
-    const user = await this.prismaService.user.findUnique({ where:{ email } });
-
+    const user = await this.prismaService.user.findUnique({
+      where: {
+          email: email
+      }
+    })
+    
     return user === null || user === undefined;
   }
 

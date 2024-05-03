@@ -6,6 +6,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { UserService } from '../user/services/user.service';
 import { User } from '@prisma/client';
 import { checkPassword } from 'src/user/utils/user.utils';
+import { CreateUserDTO } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(signUp: SignUp): Promise<User> {
+  async register(signUp: CreateUserDTO): Promise<User> {
     const user = await this.userService.create(signUp);
     delete user.password;
 

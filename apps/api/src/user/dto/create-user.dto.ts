@@ -1,10 +1,12 @@
-import { IsDefined, IsEmail, IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import { IsDefined, IsEmail, IsNotEmpty, IsString, MaxLength, MinLength, Validate } from "class-validator";
+import { IsUserAlreadyExist } from "../validators/is-user-already-exist.validator";
 
 export class CreateUserDTO {
 
     @IsEmail()
     @IsNotEmpty()
     @IsDefined()
+    @Validate(IsUserAlreadyExist)
     email: string;
     
     @IsString()

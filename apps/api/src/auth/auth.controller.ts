@@ -18,6 +18,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { SessionAuthGuard } from './guards/session-auth.guard';
 import { User } from '@prisma/client';
 import { TokenInterceptor } from './interceptors/token.interceptor';
+import { CreateUserDTO } from 'src/user/dto/create-user.dto';
   
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -27,8 +28,8 @@ export class AuthController {
     @Post('register')
     @HttpCode(HttpStatus.CREATED)
     @UseInterceptors(TokenInterceptor)
-    register(@Body() signUp: SignUp): Promise<User> {
-      return this.authService.register(signUp);
+    async register(@Body() signUp: CreateUserDTO): Promise<User> {
+      return await this.authService.register(signUp);
     }
   
     @Post('login')
