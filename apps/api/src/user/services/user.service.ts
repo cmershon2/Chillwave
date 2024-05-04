@@ -38,6 +38,8 @@ export class UserService {
             `There isn't any user with identifier: ${id}`,
           );
         }
+
+        delete user.password;
     
         return user;
     }
