@@ -12,13 +12,12 @@ import {
   
 import { AuthUser } from '../user/decorators/user.decorator';
 import { AuthService } from './auth.service';
-import { SignUp } from './dto/sign-up.dto';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { SessionAuthGuard } from './guards/session-auth.guard';
 import { User } from '@prisma/client';
 import { TokenInterceptor } from './interceptors/token.interceptor';
-import { CreateUserDTO } from 'src/user/dto/create-user.dto';
+import { CreateUserDTO } from '../user/dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')

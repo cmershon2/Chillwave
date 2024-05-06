@@ -4,7 +4,7 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-import { PrismaService } from 'src/persistence/prisma/prisma.service';
+import { PrismaService } from '../../persistence/prisma/prisma.service';
 
 
 @ValidatorConstraint({ name: 'isUserAlreadyExist', async: true })
@@ -19,7 +19,7 @@ export class IsUserAlreadyExist implements ValidatorConstraintInterface {
           email: email
       }
     })
-    
+
     return user === null || user === undefined;
   }
 
