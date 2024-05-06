@@ -4,6 +4,7 @@ import { PrismaService } from '../../persistence/prisma/prisma.service';
 import { CreateUserDTO } from '../dto/create-user.dto';
 import { UserUpdate } from '../dto/user-update.dto';
 import { hashPassword } from '../utils/user.utils';
+import { number } from 'joi';
 
 @Injectable()
 export class UserService {
@@ -79,5 +80,25 @@ export class UserService {
         });
     
         return updatedUser;
+    }
+
+    async delete(id: number): Promise<User> {
+        const user = await this.prismaService.user.findUnique({
+            where: {
+                id: id
+            }
+        })
+    
+        if (!user) {
+          throw new NotFoundException(`There isn't any user with identifier: ${id}`);
+        }
+
+        const deleteUser = await this.prismaService.user.delete({
+            where: {
+                id: id
+            }
+        })
+
+        return deleteUser;
     }
 }
