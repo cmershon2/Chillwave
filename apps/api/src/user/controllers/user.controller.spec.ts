@@ -32,7 +32,7 @@ describe('UserController', () => {
       password: 'hashedPassword', 
       createdAt: new Date(), 
       updatedAt: new Date(), 
-      role: Roles.USER
+      roles: [Roles.USER]
     };
     jest.spyOn(userService, 'findOne').mockResolvedValue(user);
 
@@ -51,7 +51,7 @@ describe('UserController', () => {
       password: 'hashedPassword', 
       createdAt: new Date(), 
       updatedAt: new Date(), 
-      role: Roles.USER
+      roles: [Roles.USER]
     };
     jest.spyOn(userService, 'update').mockResolvedValue(updatedUser);
 
@@ -69,7 +69,7 @@ describe('UserController', () => {
       password: 'hashedPassword', 
       createdAt: new Date(), 
       updatedAt: new Date(), 
-      role: Roles.USER 
+      roles: [Roles.USER] 
     };
     jest.spyOn(userService, 'delete').mockResolvedValue(deletedUser);
 

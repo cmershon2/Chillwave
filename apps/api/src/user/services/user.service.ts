@@ -4,7 +4,6 @@ import { PrismaService } from '../../persistence/prisma/prisma.service';
 import { CreateUserDTO } from '../dto/create-user.dto';
 import { UserUpdate } from '../dto/user-update.dto';
 import { hashPassword } from '../utils/user.utils';
-import { number } from 'joi';
 
 @Injectable()
 export class UserService {

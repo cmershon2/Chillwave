@@ -18,7 +18,7 @@ model User {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   profile       Profile?
-  role          Roles       @default(USER)
+  roles         Roles[]      @default([USER])
 }
 
 model Profile {
@@ -34,5 +34,8 @@ model Profile {
 
 enum Roles {
   USER
+  CREATOR
+  EDITOR
+  MODERATOR
   ADMIN
 }
