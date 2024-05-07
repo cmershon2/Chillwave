@@ -33,7 +33,8 @@ describe('UserService', () => {
   });
 
   it('should find one user', async () => {
-    const user = await userService.findOne(1);
+    const email = await userService.findOneByEmail('test@example.com');
+    const user = await userService.findOne(email.id);
     expect(user).toBeDefined();
   });
 
@@ -53,8 +54,9 @@ describe('UserService', () => {
   });
 
   it('should update a user', async () => {
+    const user = await userService.findOneByEmail('test@example.com');
     const updates = { displayName: 'Updated User' };
-    const updatedUser = await userService.update(1, updates);
+    const updatedUser = await userService.update(user.id, updates);
     expect(updatedUser.displayName).toBe(updates.displayName);
   });
 
