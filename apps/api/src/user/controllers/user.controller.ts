@@ -4,8 +4,8 @@ import { UserUpdate } from '../dto/user-update.dto';
 import { UserService } from '../services/user.service';
 import { ApiTags } from '@nestjs/swagger';
 import { RolesInterceptor } from '../interceptors/roles.interceptor';
-import { SessionAuthGuard } from 'src/auth/guards/session-auth.guard';
-import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../../auth/guards/session-auth.guard';
+import { JWTAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { AuthUser } from '../decorators/user.decorator';
 
 @ApiTags('User')
@@ -24,7 +24,6 @@ export class UserController {
     update(
         @Param('id', new ParseIntPipe()) id: number,
         @Body() updatesUser: UserUpdate,
-        @AuthUser() user: User,
     ): Promise<User> {
         return this.userService.update(id, updatesUser);
     }
@@ -34,7 +33,6 @@ export class UserController {
     @UseInterceptors(RolesInterceptor)
     delete(
         @Param('id', new ParseIntPipe()) id: number,
-        @AuthUser() user: User,
     ) : Promise<User>{
         return this.userService.delete(id);
     }
