@@ -6,6 +6,8 @@ import * as connectPgSimple from 'connect-pg-simple';
 
 import { AppModule } from './app.module';
 import passport from 'passport';
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+import { PrismaClient } from '@prisma/client';
 
 export function setup(app: INestApplication): INestApplication {
   app.useGlobalPipes(
@@ -24,9 +26,14 @@ export function setup(app: INestApplication): INestApplication {
       resave: false,
       saveUninitialized: false,
       store:
-        process.env.NODE_ENV === 'production'
-          ? new (connectPgSimple(session))()
-          : new session.MemoryStore(),
+        new PrismaSessionStore(
+          new PrismaClient(),
+          {
+            checkPeriod: 2 * 60 * 1000,  //ms
+            dbRecordIdIsSessionId: true,
+            dbRecordIdFunction: undefined,
+          }
+        ),
       cookie: {
         httpOnly: true,
         signed: true,

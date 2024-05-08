@@ -16,7 +16,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     JwtModule.register({
       secret: process.env.APP_SECRET,
       signOptions: {
-        expiresIn: '5m',
+        expiresIn: '1d',
         algorithm: 'HS384',
       },
       verifyOptions: {

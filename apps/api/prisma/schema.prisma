@@ -21,6 +21,13 @@ model User {
   roles         Roles[]      @default([USER])
 }
 
+model Session {
+  id          String   @id
+  sid         String   @unique
+  data        String
+  expiresAt   DateTime
+}
+
 model Profile {
   id            Int         @id @default(autoincrement())
   user          User        @relation(fields: [userId], references: [id])
