@@ -11,7 +11,38 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  id            Int         @id @default(autoincrement())
+  email         String      @unique
+  displayName   String
+  password      String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  profile       Profile?
+  roles         Roles[]      @default([USER])
+}
+
+model Session {
+  id          String   @id
+  sid         String   @unique
+  data        String
+  expiresAt   DateTime
+}
+
+model Profile {
+  id            Int         @id @default(autoincrement())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        Int         @unique
+  avatar        String
+  birthday      DateTime
+  description   String?     @db.VarChar(255)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum Roles {
+  USER
+  CREATOR
+  EDITOR
+  MODERATOR
+  ADMIN
 }
