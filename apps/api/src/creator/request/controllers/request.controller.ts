@@ -1,13 +1,19 @@
 import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from 'src/auth/guards/session-auth.guard';
+import { RequestService } from '../services/request.service';
 
-@Controller('request')
+@ApiTags('Creator')
+@Controller('creator/request')
 export class RequestController {
+    constructor(private readonly requestService: RequestService) {}
+
     @Post()
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    request() {
+    async request() {
     // Logic for creating a new creator request
+        return await this.requestService.create("caseymershon@gmail.com");
     }
 
     @Get(':id')
