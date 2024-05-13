@@ -59,20 +59,31 @@ model CreatorProfile {
 }
 
 model CreatorRequest {
-  id             Int       @id @default(autoincrement())
-  userId         Int       @unique
-  user           User      @relation(fields: [userId], references: [id])
-  requestedAt    DateTime  @default(now())
-  approvedAt     DateTime?
-  rejectedAt     DateTime?
-  reason         String?   @db.VarChar(255)
-  emailVerified  Boolean   @default(false)
-  accountAge     Int
-  status         CreatorRequestStatus @default(PENDING)
+  id                Int       @id @default(autoincrement())
+  userId            Int       @unique
+  user              User      @relation(fields: [userId], references: [id])
+  requestedAt       DateTime  @default(now())
+  approvedAt        DateTime?
+  rejectedAt        DateTime?
+  reason            String?   @db.VarChar(255)
+  emailVerification CreatorEmailVerification?
+  accountAge        Int
+  status            CreatorRequestStatus @default(PENDING)
 }
 
 enum CreatorRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model CreatorEmailVerification {
+  id                Int             @id @default(autoincrement())
+  verificationId    String          @default(cuid())
+  creatorRequest    CreatorRequest  @relation(fields: [creatorRequestId], references: [id])
+  creatorRequestId  Int             @unique
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  expiresAt         DateTime
+  verified          Boolean         @default(false)
 }

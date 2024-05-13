@@ -7,6 +7,7 @@ import { PersistenceModule } from './persistence/persistence.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CreatorModule } from './creator/creator.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { CreatorModule } from './creator/creator.module';
     AuthModule,
     UserModule,
     CreatorModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
