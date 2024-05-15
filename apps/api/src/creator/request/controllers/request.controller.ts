@@ -3,6 +3,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from 'src/auth/guards/session-auth.guard';
 import { RequestService } from '../services/request.service';
+import { AuthUser } from 'src/user/decorators/user.decorator';
+import { User } from '@prisma/client';
 
 @ApiTags('Creator')
 @Controller('creator/request')
@@ -11,9 +13,10 @@ export class RequestController {
 
     @Post()
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    async request() {
-    // Logic for creating a new creator request
-        return await this.requestService.create("caseymershon@gmail.com");
+    async request(
+        @AuthUser() user: User,
+    ) {
+        return await this.requestService.create(user);
     }
 
     @Get(':id')
