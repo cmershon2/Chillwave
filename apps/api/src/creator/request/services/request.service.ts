@@ -1,7 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { EmailService } from '../../../email/email.service';
-import { User, CreatorRequest } from '@prisma/client';
+import { User, CreatorRequest, CreatorRequestStatus } from '@prisma/client';
 import { PrismaService } from '../../../persistence/prisma/prisma.service';
+import { UpdateCreatorRequest } from '../dto/update-creator-request.dto';
+import { VerifyCreatorRequest } from '../dto/verify-creator-request.dto';
 
 @Injectable()
 export class RequestService {
@@ -71,11 +73,78 @@ export class RequestService {
         return creatorRequest;
     }
 
-    async update(user : User) : Promise<CreatorRequest> {
+    async update(id: number, update: UpdateCreatorRequest) : Promise<CreatorRequest> {
+        const creatorRequest = await this.prismaService.creatorRequest.findUnique({
+            where:{id: id},
+            include:{ emailVerification: true }
+        });
 
+        if(!creatorRequest) {
+            throw new NotFoundException()
+        }
+
+        const updatedRequest = await this.prismaService.creatorRequest.update({
+            where:{id:id},
+            data: update
+        })
+
+        return updatedRequest;
     }
 
-    async delete(user : User) : Promise<void>{
+    async delete(id: number) : Promise<void>{
+        const creatorRequest = await this.prismaService.creatorRequest.findUnique({
+            where:{id: id},
+            include:{ emailVerification: true }
+        });
 
+        if(!creatorRequest) {
+            throw new NotFoundException()
+        }
+
+        const deletedRequest = await this.prismaService.creatorRequest.delete({
+            where: {id: id}
+        })
+
+        return;
+    }
+
+    async verify(id: number, emailId: number, verifyCreatorRequest: VerifyCreatorRequest) : Promise<CreatorRequest>{
+        const creatorRequest = await this.prismaService.creatorRequest.findUnique({
+            where:{id: id},
+            include:{ emailVerification: true }
+        });
+
+        if(!creatorRequest) {
+            throw new NotFoundException()
+        }
+
+        if(creatorRequest.emailVerification.id != emailId || creatorRequest.emailVerification.verificationId != verifyCreatorRequest.token){
+            throw new NotFoundException()
+        }
+
+        const currentTime = new Date();
+
+        if(creatorRequest.emailVerification.expiresAt.getTime() < currentTime.getTime()){
+            throw new UnauthorizedException('Expired Email Verification Token');
+        }
+
+        // TODO verify account is in good standing - ie no reports
+
+        const updatedCreatorRequest = await this.prismaService.creatorRequest.update({
+            where:{id: id},
+            data:{
+                approvedAt: currentTime,
+                status: CreatorRequestStatus.APPROVED,
+                emailVerification:{
+                    update:{
+                        data:{
+                            verified: true
+                        }
+                    }
+                }
+            }
+        });
+
+        return updatedCreatorRequest;
     }
 }
