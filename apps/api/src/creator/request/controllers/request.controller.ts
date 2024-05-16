@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from 'src/auth/guards/session-auth.guard';
@@ -7,6 +7,7 @@ import { AuthUser } from 'src/user/decorators/user.decorator';
 import { User } from '@prisma/client';
 import { UpdateCreatorRequest } from '../dto/update-creator-request.dto';
 import { VerifyCreatorRequest } from '../dto/verify-creator-request.dto';
+import { IsCreatorRequestOwner } from '../interceptors/is-creator-request-owner.interceptor';
 
 @ApiTags('Creator')
 @Controller('creator/request')
@@ -23,12 +24,14 @@ export class RequestController {
 
     @Get(':id')
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @UseInterceptors(IsCreatorRequestOwner)
     async getRequest(@Param('id', new ParseIntPipe()) id: number) {
         return await this.requestService.get(id);
     }
 
     @Patch(':id')
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @UseInterceptors(IsCreatorRequestOwner)
     async updateRequest(
         @Param('id', new ParseIntPipe()) id: number,
         @Body() updateCreatorRequest : UpdateCreatorRequest
@@ -38,16 +41,18 @@ export class RequestController {
 
     @Delete(':id')
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @UseInterceptors(IsCreatorRequestOwner)
     async deleteRequest(@Param('id', new ParseIntPipe()) id: number) {
         return await this.requestService.delete(id);
     }
 
     @Post(':id/email/:emailId/verify')
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @UseInterceptors(IsCreatorRequestOwner)
     async verifyEmailRequest(
         @Param('id', new ParseIntPipe()) id: number,
         @Param('emailId') emailId: number,
-        @Body() verifyCreatorRequest: VerifyCreatorRequest
+        @Body() verifyCreatorRequest: VerifyCreatorRequest,
     ) {
         return await this.requestService.verify(id, emailId, verifyCreatorRequest);
     }

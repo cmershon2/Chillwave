@@ -80,7 +80,7 @@ enum CreatorRequestStatus {
 model CreatorEmailVerification {
   id                Int             @id @default(autoincrement())
   verificationId    String          @unique @default(cuid())
-  creatorRequest    CreatorRequest  @relation(fields: [creatorRequestId], references: [id])
+  creatorRequest    CreatorRequest  @relation(fields: [creatorRequestId], references: [id], onDelete: Cascade)
   creatorRequestId  Int             @unique
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt

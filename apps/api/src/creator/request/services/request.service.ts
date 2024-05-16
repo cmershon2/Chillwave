@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { EmailService } from '../../../email/email.service';
-import { User, CreatorRequest, CreatorRequestStatus } from '@prisma/client';
+import { User, CreatorRequest, CreatorRequestStatus, Roles } from '@prisma/client';
 import { PrismaService } from '../../../persistence/prisma/prisma.service';
 import { UpdateCreatorRequest } from '../dto/update-creator-request.dto';
 import { VerifyCreatorRequest } from '../dto/verify-creator-request.dto';
@@ -122,13 +122,21 @@ export class RequestService {
             throw new NotFoundException()
         }
 
+        if(creatorRequest.status == "APPROVED"){
+            throw new BadRequestException('Request already approved');
+        }
+
+        if(creatorRequest.status == "REJECTED"){
+            throw new BadRequestException('Request already rejected');
+        }
+
         const currentTime = new Date();
 
         if(creatorRequest.emailVerification.expiresAt.getTime() < currentTime.getTime()){
             throw new UnauthorizedException('Expired Email Verification Token');
         }
 
-        // TODO verify account is in good standing - ie no reports
+        // TODO verify account is in good standing - ie. no outstanding reports
 
         const updatedCreatorRequest = await this.prismaService.creatorRequest.update({
             where:{id: id},
@@ -141,6 +149,16 @@ export class RequestService {
                             verified: true
                         }
                     }
+                }
+            }
+        });
+
+        // update user roles after verification
+        const updateUserRoles = await this.prismaService.user.update({
+            where:{ id: updatedCreatorRequest.userId },
+            data:{
+                roles:{
+                    push: Roles.CREATOR
                 }
             }
         });
