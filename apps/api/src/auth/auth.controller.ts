@@ -1,15 +1,15 @@
 import {
-    Body,
-    ClassSerializerInterceptor,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Post,
-    UseGuards,
-    UseInterceptors,
+  Body,
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-  
+
 import { AuthUser } from '../user/decorators/user.decorator';
 import { AuthService } from './auth.service';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
@@ -24,26 +24,26 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
-  
-    @Post('register')
-    @HttpCode(HttpStatus.CREATED)
-    @UseInterceptors(TokenInterceptor)
-    async register(@Body() signUp: CreateUserDTO): Promise<User> {
-      return await this.authService.register(signUp);
-    }
-  
-    @Post('login')
-    @UseGuards(LocalAuthGuard)
-    @HttpCode(HttpStatus.OK)
-    @UseInterceptors(TokenInterceptor)
-    async login(@AuthUser() user: User): Promise<User> {
-      return user;
-    }
-  
-    @Get('/me')
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    me(@AuthUser() user: User): User {
-      return user;
-    }
+  constructor(private readonly authService: AuthService) {}
+
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(TokenInterceptor)
+  async register(@Body() signUp: CreateUserDTO): Promise<User> {
+    return await this.authService.register(signUp);
   }
+
+  @Post('login')
+  @UseGuards(LocalAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(TokenInterceptor)
+  async login(@AuthUser() user: User): Promise<User> {
+    return user;
+  }
+
+  @Get('/me')
+  @UseGuards(SessionAuthGuard, JWTAuthGuard)
+  me(@AuthUser() user: User): User {
+    return user;
+  }
+}

@@ -11,6 +11,6 @@ import { ProfileModule } from './profile/profile.module';
 @Module({
   controllers: [CreatorController, ProfileController],
   providers: [CreatorService, RequestService],
-  imports: [RequestModule, EmailModule, PersistenceModule, ProfileModule]
+  imports: [RequestModule, EmailModule, PersistenceModule, ProfileModule],
 })
 export class CreatorModule {}

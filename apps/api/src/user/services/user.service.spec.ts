@@ -5,7 +5,6 @@ import { NotFoundException } from '@nestjs/common';
 
 describe('UserService', () => {
   let userService: UserService;
-  let prismaService: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -13,7 +12,6 @@ describe('UserService', () => {
     }).compile();
 
     userService = module.get<UserService>(UserService);
-    prismaService = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {
@@ -21,10 +19,10 @@ describe('UserService', () => {
   });
 
   it('should create a new user', async () => {
-    const createUserDTO = { 
-      email: 'test@example.com', 
-      displayName: 'Test User', 
-      password: 'password' 
+    const createUserDTO = {
+      email: 'test@example.com',
+      displayName: 'Test User',
+      password: 'password',
     };
     const createdUser = await userService.create(createUserDTO);
 
@@ -40,7 +38,9 @@ describe('UserService', () => {
 
   it('should throw NotFoundException on find one when user does not exist', async () => {
     const nonExistentUserId = 9999;
-    await expect(userService.findOne(nonExistentUserId)).rejects.toThrowError(NotFoundException);
+    await expect(userService.findOne(nonExistentUserId)).rejects.toThrowError(
+      NotFoundException,
+    );
   });
 
   it('should find one user by email', async () => {
@@ -50,7 +50,9 @@ describe('UserService', () => {
 
   it('should throw NotFoundException on find one by email when user does not exist', async () => {
     const nonExistentUserEmail = 'hello@world.com';
-    await expect(userService.findOneByEmail(nonExistentUserEmail)).rejects.toThrowError(NotFoundException);
+    await expect(
+      userService.findOneByEmail(nonExistentUserEmail),
+    ).rejects.toThrowError(NotFoundException);
   });
 
   it('should update a user', async () => {
@@ -63,7 +65,9 @@ describe('UserService', () => {
   it('should throw NotFoundException on update when user does not exist', async () => {
     const nonExistentUserId = 9999;
     const updates = { displayName: 'Updated User' };
-    await expect(userService.update(nonExistentUserId, updates)).rejects.toThrowError(NotFoundException);
+    await expect(
+      userService.update(nonExistentUserId, updates),
+    ).rejects.toThrowError(NotFoundException);
   });
 
   it('should delete one user', async () => {
@@ -75,11 +79,15 @@ describe('UserService', () => {
 
     expect(deletedUser.id).toBe(user.id);
     // Check that the user is deleted by trying to find it again (it should throw NotFoundException)
-    await expect(userService.findOne(user.id)).rejects.toThrowError(NotFoundException);
+    await expect(userService.findOne(user.id)).rejects.toThrowError(
+      NotFoundException,
+    );
   });
 
   it('should throw NotFoundException on delete when user does not exist', async () => {
     const nonExistentUserId = 9999;
-    await expect(userService.delete(nonExistentUserId)).rejects.toThrowError(NotFoundException);
+    await expect(userService.delete(nonExistentUserId)).rejects.toThrowError(
+      NotFoundException,
+    );
   });
 });

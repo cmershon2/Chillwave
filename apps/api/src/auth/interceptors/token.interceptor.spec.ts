@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TokenInterceptor } from './token.interceptor';
 import { AuthService } from '../auth.service';
 import { ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { Roles, User } from '@prisma/client';
 import { lastValueFrom } from 'rxjs';
 
@@ -30,13 +30,13 @@ describe('TokenInterceptor', () => {
 
   it('should add the token to the response', async () => {
     const mockUser: User = {
-        id: 1,
-        email: 'test@example.com',
-        displayName: 'Test User',
-        password: 'hashed_password',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        roles: [Roles.USER]
+      id: 1,
+      email: 'test@example.com',
+      displayName: 'Test User',
+      password: 'hashed_password',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      roles: [Roles.USER],
     };
 
     const mockExecutionContext = {
@@ -66,12 +66,16 @@ describe('TokenInterceptor', () => {
       'Authorization',
       `Bearer mock_jwt_token`,
     );
-    expect(mockResponse.cookie).toHaveBeenCalledWith('token', 'mock_jwt_token', {
-      httpOnly: true,
-      signed: true,
-      sameSite: 'strict',
-      secure: process.env.NODE_ENV === 'production',
-    });
+    expect(mockResponse.cookie).toHaveBeenCalledWith(
+      'token',
+      'mock_jwt_token',
+      {
+        httpOnly: true,
+        signed: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    );
 
     expect(result).toEqual(mockUser);
   });

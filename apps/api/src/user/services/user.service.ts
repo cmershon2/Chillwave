@@ -7,97 +7,98 @@ import { hashPassword } from '../utils/user.utils';
 
 @Injectable()
 export class UserService {
+  constructor(private readonly prismaService: PrismaService) {}
 
-    constructor(private readonly prismaService: PrismaService) { }
+  async create(data: CreateUserDTO): Promise<User> {
+    const passwordHash = await hashPassword(data.password);
 
-    async create(data: CreateUserDTO ): Promise<User> {
-        const passwordHash = await hashPassword(data.password);
+    const user = await this.prismaService.user.create({
+      data: {
+        email: data.email,
+        displayName: data.displayName,
+        password: passwordHash,
+      },
+    });
 
-        const user = await this.prismaService.user.create({
-            data:{
-                email: data.email,
-                displayName: data.displayName,
-                password: passwordHash,
-            }
-        });
+    return user;
+  }
 
-        return user;
+  // Find user by ID
+  async findOne(id: number): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `There isn't any user with identifier: ${id}`,
+      );
     }
 
-    // Find user by ID
-    async findOne(id: number): Promise<User> {
-        const user = await this.prismaService.user.findUnique({
-            where: {
-                id: id
-            }
-        })
-    
-        if (!user) {
-          throw new NotFoundException(
-            `There isn't any user with identifier: ${id}`,
-          );
-        }
+    delete user.password;
 
-        delete user.password;
-    
-        return user;
+    return user;
+  }
+
+  // Find user by Email
+  async findOneByEmail(email: string): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`There isn't any user with email: ${email}`);
     }
 
-    // Find user by Email
-    async findOneByEmail(email: string): Promise<User> {
-        const user = await this.prismaService.user.findUnique({
-            where: {
-                email: email
-            }
-        })
-    
-        if (!user) {
-          throw new NotFoundException(
-            `There isn't any user with email: ${email}`,
-          );
-        }
-    
-        return user;
+    return user;
+  }
+
+  async update(id: number, updates: UserUpdate): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `There isn't any user with identifier: ${id}`,
+      );
     }
 
-    async update(id: number, updates: UserUpdate): Promise<User> {
-        const user = await this.prismaService.user.findUnique({
-            where: {
-                id: id
-            }
-        })
-    
-        if (!user) {
-          throw new NotFoundException(`There isn't any user with identifier: ${id}`);
-        }
-    
-        const updatedUser = this.prismaService.user.update({
-            where:{
-                id: id
-            },
-            data: updates
-        });
-    
-        return updatedUser;
+    const updatedUser = this.prismaService.user.update({
+      where: {
+        id: id,
+      },
+      data: updates,
+    });
+
+    return updatedUser;
+  }
+
+  async delete(id: number): Promise<User> {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `There isn't any user with identifier: ${id}`,
+      );
     }
 
-    async delete(id: number): Promise<User> {
-        const user = await this.prismaService.user.findUnique({
-            where: {
-                id: id
-            }
-        })
-    
-        if (!user) {
-          throw new NotFoundException(`There isn't any user with identifier: ${id}`);
-        }
+    const deleteUser = await this.prismaService.user.delete({
+      where: {
+        id: id,
+      },
+    });
 
-        const deleteUser = await this.prismaService.user.delete({
-            where: {
-                id: id
-            }
-        })
-
-        return deleteUser;
-    }
+    return deleteUser;
+  }
 }

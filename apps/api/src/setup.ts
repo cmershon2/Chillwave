@@ -2,7 +2,6 @@ import { ValidationPipe, HttpStatus, INestApplication } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
-import * as connectPgSimple from 'connect-pg-simple';
 
 import { AppModule } from './app.module';
 import passport from 'passport';
@@ -25,15 +24,11 @@ export function setup(app: INestApplication): INestApplication {
       secret: process.env.APP_SECRET as string,
       resave: false,
       saveUninitialized: false,
-      store:
-        new PrismaSessionStore(
-          new PrismaClient(),
-          {
-            checkPeriod: 2 * 60 * 1000,  //ms
-            dbRecordIdIsSessionId: true,
-            dbRecordIdFunction: undefined,
-          }
-        ),
+      store: new PrismaSessionStore(new PrismaClient(), {
+        checkPeriod: 2 * 60 * 1000, //ms
+        dbRecordIdIsSessionId: true,
+        dbRecordIdFunction: undefined,
+      }),
       cookie: {
         httpOnly: true,
         signed: true,

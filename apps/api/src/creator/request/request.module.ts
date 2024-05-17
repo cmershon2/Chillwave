@@ -5,9 +5,9 @@ import { RequestService } from './services/request.service';
 import { PersistenceModule } from '../../persistence/persistence.module';
 
 @Module({
-  imports:[EmailModule, PersistenceModule],
+  imports: [EmailModule, PersistenceModule],
   controllers: [RequestController],
-  exports:[RequestService],
-  providers:[RequestService]
+  exports: [RequestService],
+  providers: [RequestService],
 })
 export class RequestModule {}

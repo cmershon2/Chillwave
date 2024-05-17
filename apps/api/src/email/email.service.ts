@@ -13,13 +13,17 @@ export class EmailService {
       port: process.env.SMTP_PORT,
       secure: true,
       auth: {
-         user: process.env.SMTP_USERNAME,
-         pass: process.env.SMTP_PASSWORD
-      }
+        user: process.env.SMTP_USERNAME,
+        pass: process.env.SMTP_PASSWORD,
+      },
     });
   }
 
-  async sendMail(options: nodemailer.SendMailOptions, template: string, context: any): Promise<void> {
+  async sendMail(
+    options: nodemailer.SendMailOptions,
+    template: string,
+    context: any,
+  ): Promise<void> {
     const templatePath = `${process.cwd()}/emailTemplates/${template}.hbs`;
     const source = fs.readFileSync(templatePath, 'utf-8');
     const compiledTemplate = handlebars.compile(source);

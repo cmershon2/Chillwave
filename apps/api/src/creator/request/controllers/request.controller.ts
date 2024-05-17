@@ -1,5 +1,16 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from 'src/auth/guards/session-auth.guard';
 import { RequestService } from '../services/request.service';
@@ -12,48 +23,46 @@ import { IsCreatorRequestOwner } from '../interceptors/is-creator-request-owner.
 @ApiTags('Creator')
 @Controller('creator/request')
 export class RequestController {
-    constructor(private readonly requestService: RequestService) {}
+  constructor(private readonly requestService: RequestService) {}
 
-    @Post()
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    async request(
-        @AuthUser() user: User,
-    ) {
-        return await this.requestService.create(user);
-    }
+  @Post()
+  @UseGuards(SessionAuthGuard, JWTAuthGuard)
+  async request(@AuthUser() user: User) {
+    return await this.requestService.create(user);
+  }
 
-    @Get(':id')
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    @UseInterceptors(IsCreatorRequestOwner)
-    async getRequest(@Param('id', new ParseIntPipe()) id: number) {
-        return await this.requestService.get(id);
-    }
+  @Get(':id')
+  @UseGuards(SessionAuthGuard, JWTAuthGuard)
+  @UseInterceptors(IsCreatorRequestOwner)
+  async getRequest(@Param('id', new ParseIntPipe()) id: number) {
+    return await this.requestService.get(id);
+  }
 
-    @Patch(':id')
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    @UseInterceptors(IsCreatorRequestOwner)
-    async updateRequest(
-        @Param('id', new ParseIntPipe()) id: number,
-        @Body() updateCreatorRequest : UpdateCreatorRequest
-    ) {
-        return await this.requestService.update(id, updateCreatorRequest);
-    }
+  @Patch(':id')
+  @UseGuards(SessionAuthGuard, JWTAuthGuard)
+  @UseInterceptors(IsCreatorRequestOwner)
+  async updateRequest(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() updateCreatorRequest: UpdateCreatorRequest,
+  ) {
+    return await this.requestService.update(id, updateCreatorRequest);
+  }
 
-    @Delete(':id')
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    @UseInterceptors(IsCreatorRequestOwner)
-    async deleteRequest(@Param('id', new ParseIntPipe()) id: number) {
-        return await this.requestService.delete(id);
-    }
+  @Delete(':id')
+  @UseGuards(SessionAuthGuard, JWTAuthGuard)
+  @UseInterceptors(IsCreatorRequestOwner)
+  async deleteRequest(@Param('id', new ParseIntPipe()) id: number) {
+    return await this.requestService.delete(id);
+  }
 
-    @Post(':id/email/:emailId/verify')
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    @UseInterceptors(IsCreatorRequestOwner)
-    async verifyEmailRequest(
-        @Param('id', new ParseIntPipe()) id: number,
-        @Param('emailId') emailId: number,
-        @Body() verifyCreatorRequest: VerifyCreatorRequest,
-    ) {
-        return await this.requestService.verify(id, emailId, verifyCreatorRequest);
-    }
+  @Post(':id/email/:emailId/verify')
+  @UseGuards(SessionAuthGuard, JWTAuthGuard)
+  @UseInterceptors(IsCreatorRequestOwner)
+  async verifyEmailRequest(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Param('emailId') emailId: number,
+    @Body() verifyCreatorRequest: VerifyCreatorRequest,
+  ) {
+    return await this.requestService.verify(id, emailId, verifyCreatorRequest);
+  }
 }

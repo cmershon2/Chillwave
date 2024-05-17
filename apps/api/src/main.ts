@@ -11,7 +11,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Flixify')
-    .setDescription('Flixify is an open-source video sharing platform created for content creators to upload their videos and engage with users through interactive features.')
+    .setDescription(
+      'Flixify is an open-source video sharing platform created for content creators to upload their videos and engage with users through interactive features.',
+    )
     .setVersion('1.0-Alpha')
     .addTag('User')
     .addTag('Auth')
@@ -23,7 +25,7 @@ async function bootstrap() {
 
   const PORT = 5002;
 
-  setup(app)
+  setup(app);
 
   await app.listen(PORT);
 
