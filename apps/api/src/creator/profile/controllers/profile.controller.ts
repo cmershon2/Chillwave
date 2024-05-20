@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards } from '@nestjs/common';
 import { JWTAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from '../../../auth/guards/session-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
@@ -13,6 +13,16 @@ export class ProfileController {
         @Param('id', new ParseIntPipe()) id: number
     ) {
         
+    }
+
+    // upload profile banner
+    @Post('upload/banner-image')
+    @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    async uploadBannerImage(
+        @Param('id', new ParseIntPipe()) id: number,
+        @UploadedFile() bannerImage: Express.Multer.File
+    ){
+
     }
 
     // get profile
