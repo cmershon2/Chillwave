@@ -10,6 +10,9 @@ export interface EnvironmentVariables {
   SMTP_PASSWORD: string;
   SMTP_HOST: string;
   SMTP_PORT: number;
+  S3_ACCESS_KEY_ID: string;
+  S3_ACCESS_KEY_SECRET: string;
+  S3_REGION: string;
 }
 
 export const validationSchemaForEnv = Joi.object<EnvironmentVariables, true>({
@@ -22,4 +25,7 @@ export const validationSchemaForEnv = Joi.object<EnvironmentVariables, true>({
   SMTP_PASSWORD: Joi.string().required(),
   SMTP_HOST: Joi.string().required(),
   SMTP_PORT: Joi.number().required(),
+  S3_ACCESS_KEY_ID: Joi.string().required(),
+  S3_ACCESS_KEY_SECRET: Joi.string().required(),
+  S3_REGION: Joi.string().required(),
 });
