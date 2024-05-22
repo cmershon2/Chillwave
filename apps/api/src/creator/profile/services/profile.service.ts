@@ -9,7 +9,10 @@ export class ProfileService {
         private readonly prismaService: PrismaService,
     ) {}
 
-    async uploadProfileBanner() {
+    async uploadProfileBanner(bannerImage: Express.Multer.File) {
         
+        const imageUpload = await this.imageUploadService.uploadImage(bannerImage, "chillwave", "creators/banner-images", 1200);
+
+        return imageUpload;
     }
 }

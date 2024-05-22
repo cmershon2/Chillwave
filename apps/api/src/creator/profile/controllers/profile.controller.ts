@@ -1,11 +1,15 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JWTAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from '../../../auth/guards/session-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
+import { ProfileService } from '../services/profile.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Creator Profile')
 @Controller('creator/:id/profile')
 export class ProfileController {
+    constructor(private readonly profileService: ProfileService) {}
+
     // create profile
     @Post()
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
@@ -18,11 +22,12 @@ export class ProfileController {
     // upload profile banner
     @Post('upload/banner-image')
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @UseInterceptors(FileInterceptor('bannerImage'))
     async uploadBannerImage(
         @Param('id', new ParseIntPipe()) id: number,
         @UploadedFile() bannerImage: Express.Multer.File
     ){
-
+        return await this.profileService.uploadProfileBanner(bannerImage);
     }
 
     // get profile
