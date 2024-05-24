@@ -1,9 +1,12 @@
-import { Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, FileTypeValidator, Get, MaxFileSizeValidator, Param, ParseFilePipe, ParseIntPipe, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JWTAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from '../../../auth/guards/session-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { ProfileService } from '../services/profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { User } from '@prisma/client';
+import { AuthUser } from 'src/user/decorators/user.decorator';
+import { CreateCreatorProfile } from '../dto/create-creator-profile.dto';
 
 @ApiTags('Creator Profile')
 @Controller('creator/:id/profile')
@@ -14,9 +17,11 @@ export class ProfileController {
     @Post()
     @UseGuards(SessionAuthGuard, JWTAuthGuard)
     async create(
-        @Param('id', new ParseIntPipe()) id: number
+        @Param('id', new ParseIntPipe()) id: number,
+        @AuthUser() user: User,
+        @Body() data: CreateCreatorProfile
     ) {
-        
+        return await this.profileService.createCreatorProfile(id, data, user);
     }
 
     // upload profile banner
@@ -25,9 +30,16 @@ export class ProfileController {
     @UseInterceptors(FileInterceptor('bannerImage'))
     async uploadBannerImage(
         @Param('id', new ParseIntPipe()) id: number,
-        @UploadedFile() bannerImage: Express.Multer.File
+        @UploadedFile(
+            new ParseFilePipe({
+                validators:[
+                    new MaxFileSizeValidator({ maxSize: 6000000 }), //6 mb
+                    new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' })
+                ]
+            })
+        ) bannerImage: Express.Multer.File
     ){
-        return await this.profileService.uploadProfileBanner(bannerImage);
+        return await this.profileService.uploadProfileBanner(id, bannerImage);
     }
 
     // get profile

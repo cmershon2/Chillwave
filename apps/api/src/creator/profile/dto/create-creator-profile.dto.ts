@@ -10,12 +10,4 @@ export class CreateCreatorProfile {
     @IsString()
     @IsOptional()
     readonly bio?: string;
-
-    @ApiProperty({
-        readOnly: true,
-        required: false,
-    })
-    @IsString()
-    @IsOptional()
-    readonly bannerImage?: string;
 }
