@@ -10,7 +10,7 @@ import { CreateCreatorProfile } from '../dto/create-creator-profile.dto';
 import { UpdateCreatorProfile } from '../dto/update-creator-profile.dto';
 import { CreatorProfileInterceptor } from '../interceptors/profile.interceptor';
 import { RequiredRoles } from '../../../auth/decorators/roles.decorators';
-import { RolesGuard } from 'src/auth/guards/role.guard';
+import { RolesGuard } from '../../../auth/guards/role.guard';
 
 @ApiTags('Creator Profile')
 @Controller('creator/:id/profile')

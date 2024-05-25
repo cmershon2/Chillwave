@@ -11,16 +11,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { SessionAuthGuard } from 'src/auth/guards/session-auth.guard';
+import { JWTAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { SessionAuthGuard } from '../../../auth/guards/session-auth.guard';
 import { RequestService } from '../services/request.service';
-import { AuthUser } from 'src/user/decorators/user.decorator';
+import { AuthUser } from '../../../user/decorators/user.decorator';
 import { Roles, User } from '@prisma/client';
 import { UpdateCreatorRequest } from '../dto/update-creator-request.dto';
 import { VerifyCreatorRequest } from '../dto/verify-creator-request.dto';
 import { IsCreatorRequestOwner } from '../interceptors/is-creator-request-owner.interceptor';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { RequiredRoles } from 'src/auth/decorators/roles.decorators';
+import { RolesGuard } from '../../../auth/guards/role.guard';
+import { RequiredRoles } from '../../../auth/decorators/roles.decorators';
 
 @ApiTags('Creator')
 @Controller('creator/request')
