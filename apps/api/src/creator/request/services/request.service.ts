@@ -61,13 +61,13 @@ export class RequestService {
     });
 
     const mailOptions = {
-      from: 'no-reply@flixify.io',
+      from: 'no-reply@chillwave.tv',
       to: user.email,
-      subject: 'Flixify Creator Validation',
+      subject: 'Chillwave Creator Validation',
     };
 
     const context = {
-      resetUrl: `https://flixify.io/creator-club/verify/${newCreatorRequest.emailVerification.verificationId}`,
+      resetUrl: `https://chillwave.tv/creator-club/verify/${newCreatorRequest.emailVerification.verificationId}`,
     };
 
     await this.emailService.sendMail(
