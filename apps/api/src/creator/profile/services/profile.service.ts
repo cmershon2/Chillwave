@@ -47,19 +47,7 @@ export class ProfileService {
 
     async uploadProfileBanner(creatorId: number, bannerImage: Express.Multer.File) : Promise<CreatorProfile> {
         const creatorProfile = await this.prismaService.creatorProfile.findUnique({
-            where: { id: creatorId },
-            include:{
-                user:{
-                    select:{
-                        displayName: true,
-                        userProfile:{
-                            select:{
-                                avatar: true
-                            }
-                        }
-                    }
-                }
-            }
+            where: { id: creatorId }
         });
       
         if (!creatorProfile) {
@@ -72,7 +60,19 @@ export class ProfileService {
 
         const updateCreatorProfile = await this.prismaService.creatorProfile.update({
             where:{ id: creatorId},
-            data: { bannerImage: imageUpload }
+            data: { bannerImage: imageUpload },
+            include:{
+                user:{
+                    select:{
+                        displayName: true,
+                        userProfile:{
+                            select:{
+                                avatar: true
+                            }
+                        }
+                    }
+                }
+            }
         })  
 
         return updateCreatorProfile;
