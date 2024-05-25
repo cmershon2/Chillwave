@@ -4,10 +4,13 @@ import { SessionAuthGuard } from '../../../auth/guards/session-auth.guard';
 import { ApiTags } from '@nestjs/swagger';
 import { ProfileService } from '../services/profile.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { User } from '@prisma/client';
-import { AuthUser } from 'src/user/decorators/user.decorator';
+import { Roles, User } from '@prisma/client';
+import { AuthUser } from '../../../user/decorators/user.decorator';
 import { CreateCreatorProfile } from '../dto/create-creator-profile.dto';
 import { UpdateCreatorProfile } from '../dto/update-creator-profile.dto';
+import { CreatorProfileInterceptor } from '../interceptors/profile.interceptor';
+import { RequiredRoles } from '../../../auth/decorators/roles.decorators';
+import { RolesGuard } from 'src/auth/guards/role.guard';
 
 @ApiTags('Creator Profile')
 @Controller('creator/:id/profile')
@@ -16,7 +19,8 @@ export class ProfileController {
 
     // create profile
     @Post()
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @RequiredRoles(Roles.CREATOR, Roles.ADMIN)
+    @UseGuards(SessionAuthGuard, JWTAuthGuard, RolesGuard)
     async create(
         @Param('id', new ParseIntPipe()) id: number,
         @AuthUser() user: User,
@@ -27,8 +31,9 @@ export class ProfileController {
 
     // upload profile banner
     @Post('upload/banner-image')
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
-    @UseInterceptors(FileInterceptor('bannerImage'))
+    @RequiredRoles(Roles.CREATOR, Roles.ADMIN)
+    @UseGuards(SessionAuthGuard, JWTAuthGuard, RolesGuard)
+    @UseInterceptors(FileInterceptor('bannerImage'), CreatorProfileInterceptor)
     async uploadBannerImage(
         @Param('id', new ParseIntPipe()) id: number,
         @UploadedFile(
@@ -53,7 +58,9 @@ export class ProfileController {
 
     // update profile
     @Patch()
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @RequiredRoles(Roles.CREATOR, Roles.ADMIN)
+    @UseGuards(SessionAuthGuard, JWTAuthGuard, RolesGuard)
+    @UseInterceptors(CreatorProfileInterceptor)
     async update(
         @Param('id', new ParseIntPipe()) id: number,
         @Body() update : UpdateCreatorProfile
@@ -63,7 +70,9 @@ export class ProfileController {
 
     // delete profile
     @Delete()
-    @UseGuards(SessionAuthGuard, JWTAuthGuard)
+    @RequiredRoles(Roles.CREATOR, Roles.ADMIN)
+    @UseGuards(SessionAuthGuard, JWTAuthGuard, RolesGuard)
+    @UseInterceptors(CreatorProfileInterceptor)
     async delete(
         @Param('id', new ParseIntPipe()) id: number
     ){

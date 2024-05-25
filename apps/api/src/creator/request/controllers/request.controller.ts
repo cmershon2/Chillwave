@@ -15,10 +15,12 @@ import { JWTAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { SessionAuthGuard } from 'src/auth/guards/session-auth.guard';
 import { RequestService } from '../services/request.service';
 import { AuthUser } from 'src/user/decorators/user.decorator';
-import { User } from '@prisma/client';
+import { Roles, User } from '@prisma/client';
 import { UpdateCreatorRequest } from '../dto/update-creator-request.dto';
 import { VerifyCreatorRequest } from '../dto/verify-creator-request.dto';
 import { IsCreatorRequestOwner } from '../interceptors/is-creator-request-owner.interceptor';
+import { RolesGuard } from 'src/auth/guards/role.guard';
+import { RequiredRoles } from 'src/auth/decorators/roles.decorators';
 
 @ApiTags('Creator')
 @Controller('creator/request')
@@ -39,7 +41,8 @@ export class RequestController {
   }
 
   @Patch(':id')
-  @UseGuards(SessionAuthGuard, JWTAuthGuard)
+  @RequiredRoles(Roles.ADMIN)
+  @UseGuards(SessionAuthGuard, JWTAuthGuard, RolesGuard)
   @UseInterceptors(IsCreatorRequestOwner)
   async updateRequest(
     @Param('id', new ParseIntPipe()) id: number,
