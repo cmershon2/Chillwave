@@ -8,6 +8,6 @@ import { PersistenceModule } from '../persistence/persistence.module';
   imports: [PersistenceModule],
   providers: [UserService, IsUserAlreadyExist],
   controllers: [UserController],
-  exports: [UserService]
+  exports: [UserService],
 })
 export class UserModule {}

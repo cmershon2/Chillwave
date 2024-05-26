@@ -57,7 +57,7 @@ describe('AuthService', () => {
         password: await hashPassword(createUserDto.password),
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
       jest.spyOn(userService, 'create').mockResolvedValueOnce(mockUser);
 
@@ -70,7 +70,7 @@ describe('AuthService', () => {
         displayName: createUserDto.displayName,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       });
     });
   });
@@ -86,13 +86,15 @@ describe('AuthService', () => {
         password: await hashPassword(password),
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
       jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(mockUser);
-      (checkPassword as jest.MockedFunction<typeof checkPassword>).mockResolvedValueOnce(true);
-  
+      (
+        checkPassword as jest.MockedFunction<typeof checkPassword>
+      ).mockResolvedValueOnce(true);
+
       const loggedInUser = await authService.login(email, password);
-  
+
       expect(userService.findOneByEmail).toHaveBeenCalledWith(email);
       expect(checkPassword).toHaveBeenCalledWith(password, mockUser.password);
       expect(loggedInUser).toEqual(mockUser);
@@ -101,9 +103,13 @@ describe('AuthService', () => {
     it('should throw error on log in when the email not exist', async () => {
       const email = 'test@example.com';
       const password = 'password123';
-      jest.spyOn(userService, 'findOneByEmail').mockRejectedValueOnce(new Error());
+      jest
+        .spyOn(userService, 'findOneByEmail')
+        .mockRejectedValueOnce(new Error());
 
-      await expect(authService.login(email, password)).rejects.toThrowError(UnauthorizedException);
+      await expect(authService.login(email, password)).rejects.toThrowError(
+        UnauthorizedException,
+      );
     });
 
     it('should throw error on log in when the password does not match', async () => {
@@ -116,12 +122,16 @@ describe('AuthService', () => {
         password: await hashPassword(password),
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
       jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(mockUser);
-      (checkPassword as jest.MockedFunction<typeof checkPassword>).mockResolvedValueOnce(false);
+      (
+        checkPassword as jest.MockedFunction<typeof checkPassword>
+      ).mockResolvedValueOnce(false);
 
-      await expect(authService.login(email, password)).rejects.toThrowError(UnauthorizedException);
+      await expect(authService.login(email, password)).rejects.toThrowError(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -135,7 +145,7 @@ describe('AuthService', () => {
         password: await hashPassword('password123'),
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
       jest.spyOn(userService, 'findOneByEmail').mockResolvedValueOnce(mockUser);
 
@@ -145,11 +155,15 @@ describe('AuthService', () => {
       expect(verifiedUser).toEqual(mockUser);
     });
 
-    it('should throw on verify when JWT\'s subject not exist', async () => {
+    it("should throw on verify when JWT's subject not exist", async () => {
       const payload = { sub: 'nonexistent@example.com', iat: 0, exp: 0 };
-      jest.spyOn(userService, 'findOneByEmail').mockRejectedValueOnce(new Error());
+      jest
+        .spyOn(userService, 'findOneByEmail')
+        .mockRejectedValueOnce(new Error());
 
-      await expect(authService.verifyPayload(payload)).rejects.toThrowError(UnauthorizedException);
+      await expect(authService.verifyPayload(payload)).rejects.toThrowError(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -162,7 +176,7 @@ describe('AuthService', () => {
         password: 'password123',
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
 
       const token = authService.signToken(mockUser);

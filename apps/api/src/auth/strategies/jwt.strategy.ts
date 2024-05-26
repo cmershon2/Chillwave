@@ -6,7 +6,7 @@ import { AuthService } from '../auth.service';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import { User } from '@prisma/client';
 
-const extractJwtFromCookie: JwtFromRequestFunction = request => {
+const extractJwtFromCookie: JwtFromRequestFunction = (request) => {
   return request.signedCookies['token']!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
 };
 

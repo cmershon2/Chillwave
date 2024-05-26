@@ -25,7 +25,9 @@ describe('IsUserAlreadyExist Validator', () => {
 
   it('should return true if user does not exist', async () => {
     const mockEmail = 'test@example.com';
-    (validator['prismaService'].user.findUnique as jest.Mock).mockResolvedValue(null);
+    (validator['prismaService'].user.findUnique as jest.Mock).mockResolvedValue(
+      null,
+    );
 
     const isValid = await validator.validate(mockEmail);
 
@@ -34,7 +36,9 @@ describe('IsUserAlreadyExist Validator', () => {
 
   it('should return false if user already exists', async () => {
     const mockEmail = 'test@example.com';
-    (validator['prismaService'].user.findUnique as jest.Mock).mockResolvedValue({ email: mockEmail });
+    (validator['prismaService'].user.findUnique as jest.Mock).mockResolvedValue(
+      { email: mockEmail },
+    );
 
     const isValid = await validator.validate(mockEmail);
 

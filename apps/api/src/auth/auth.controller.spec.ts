@@ -54,7 +54,7 @@ describe('AuthController', () => {
         password: 'hashed_password',
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
       jest.spyOn(authService, 'register').mockResolvedValueOnce(mockUser);
 
@@ -74,7 +74,7 @@ describe('AuthController', () => {
         password: 'hashed_password',
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
 
       const loggedInUser = await controller.login(mockUser);
@@ -92,7 +92,7 @@ describe('AuthController', () => {
         password: 'hashed_password',
         createdAt: new Date(),
         updatedAt: new Date(),
-        roles: [Roles.USER]
+        roles: [Roles.USER],
       };
 
       const loggedUser = controller.me(mockUser);
@@ -104,7 +104,7 @@ describe('AuthController', () => {
       const mockRequest = {
         user: null,
       };
-  
+
       try {
         await controller.me(mockRequest.user);
       } catch (err) {

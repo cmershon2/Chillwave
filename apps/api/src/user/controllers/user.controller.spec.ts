@@ -25,14 +25,14 @@ describe('UserController', () => {
 
   it('should get a user', async () => {
     const userId = 1;
-    const user = { 
-      id: userId, 
-      email: 'test@example.com', 
-      displayName: 'Test User', 
-      password: 'hashedPassword', 
-      createdAt: new Date(), 
-      updatedAt: new Date(), 
-      roles: [Roles.USER]
+    const user = {
+      id: userId,
+      email: 'test@example.com',
+      displayName: 'Test User',
+      password: 'hashedPassword',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      roles: [Roles.USER],
     };
     jest.spyOn(userService, 'findOne').mockResolvedValue(user);
 
@@ -44,14 +44,14 @@ describe('UserController', () => {
   it('should update a user', async () => {
     const userId = 1;
     const updates = { displayName: 'Updated User' };
-    const updatedUser = { 
-      id: userId, 
-      email: 'test@example.com', 
-      displayName: 'Updated User', 
-      password: 'hashedPassword', 
-      createdAt: new Date(), 
-      updatedAt: new Date(), 
-      roles: [Roles.USER]
+    const updatedUser = {
+      id: userId,
+      email: 'test@example.com',
+      displayName: 'Updated User',
+      password: 'hashedPassword',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      roles: [Roles.USER],
     };
     jest.spyOn(userService, 'update').mockResolvedValue(updatedUser);
 
@@ -62,14 +62,14 @@ describe('UserController', () => {
 
   it('should delete a user', async () => {
     const userId = 1;
-    const deletedUser = { 
-      id: userId, 
-      email: 'test@example.com', 
-      displayName: 'Deleted User', 
-      password: 'hashedPassword', 
-      createdAt: new Date(), 
-      updatedAt: new Date(), 
-      roles: [Roles.USER] 
+    const deletedUser = {
+      id: userId,
+      email: 'test@example.com',
+      displayName: 'Deleted User',
+      password: 'hashedPassword',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      roles: [Roles.USER],
     };
     jest.spyOn(userService, 'delete').mockResolvedValue(deletedUser);
 
@@ -80,23 +80,41 @@ describe('UserController', () => {
 
   it('should throw NotFoundException on find one when user does not exist', async () => {
     const nonExistentUserId = 9999;
-    jest.spyOn(userService, 'findOne').mockRejectedValue(new NotFoundException(`User with id ${nonExistentUserId} not found`));
+    jest
+      .spyOn(userService, 'findOne')
+      .mockRejectedValue(
+        new NotFoundException(`User with id ${nonExistentUserId} not found`),
+      );
 
-    await expect(userController.get(nonExistentUserId)).rejects.toThrowError(NotFoundException);
+    await expect(userController.get(nonExistentUserId)).rejects.toThrowError(
+      NotFoundException,
+    );
   });
 
   it('should throw NotFoundException on update when user does not exist', async () => {
     const nonExistentUserId = 9999;
     const updates = { displayName: 'Updated User' };
-    jest.spyOn(userService, 'update').mockRejectedValue(new NotFoundException(`User with id ${nonExistentUserId} not found`));
+    jest
+      .spyOn(userService, 'update')
+      .mockRejectedValue(
+        new NotFoundException(`User with id ${nonExistentUserId} not found`),
+      );
 
-    await expect(userController.update(nonExistentUserId, updates)).rejects.toThrowError(NotFoundException);
+    await expect(
+      userController.update(nonExistentUserId, updates),
+    ).rejects.toThrowError(NotFoundException);
   });
 
   it('should throw NotFoundException on delete when user does not exist', async () => {
     const nonExistentUserId = 9999;
-    jest.spyOn(userService, 'delete').mockRejectedValue(new NotFoundException(`User with id ${nonExistentUserId} not found`));
+    jest
+      .spyOn(userService, 'delete')
+      .mockRejectedValue(
+        new NotFoundException(`User with id ${nonExistentUserId} not found`),
+      );
 
-    await expect(userController.delete(nonExistentUserId)).rejects.toThrowError(NotFoundException);
+    await expect(userController.delete(nonExistentUserId)).rejects.toThrowError(
+      NotFoundException,
+    );
   });
 });
