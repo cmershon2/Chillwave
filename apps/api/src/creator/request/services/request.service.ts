@@ -144,29 +144,33 @@ export class RequestService {
       throw new NotFoundException();
     }
 
+    const currentTime = new Date();
+
+    // verify request not expired
+    if (
+      creatorRequest.emailVerification.expiresAt.getTime() <
+      currentTime.getTime()
+    ) {
+      throw new UnauthorizedException('Expired Email Verification Token');
+    }
+
+    // verify request is not already approved
+    if (creatorRequest.status == 'APPROVED') {
+      throw new BadRequestException('Request already approved');
+    }
+
+    // verify request is not already rejected
+    if (creatorRequest.status == 'REJECTED') {
+      throw new BadRequestException('Request already rejected');
+    }
+
+    // verify token is related to correct email
     if (
       creatorRequest.emailVerification.id != emailId ||
       creatorRequest.emailVerification.verificationId !=
         verifyCreatorRequest.token
     ) {
       throw new NotFoundException();
-    }
-
-    if (creatorRequest.status == 'APPROVED') {
-      throw new BadRequestException('Request already approved');
-    }
-
-    if (creatorRequest.status == 'REJECTED') {
-      throw new BadRequestException('Request already rejected');
-    }
-
-    const currentTime = new Date();
-
-    if (
-      creatorRequest.emailVerification.expiresAt.getTime() <
-      currentTime.getTime()
-    ) {
-      throw new UnauthorizedException('Expired Email Verification Token');
     }
 
     // TODO verify account is in good standing - ie. no outstanding reports
