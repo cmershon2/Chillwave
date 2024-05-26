@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import * as AWS from 'aws-sdk';
 import sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
 import { ImageUploadService } from './image.service';
 
 jest.mock('aws-sdk', () => {
@@ -47,12 +46,14 @@ describe('ImageUploadService', () => {
 
     expect(sharp).toHaveBeenCalledWith(mockFile.buffer);
     expect(result).toBe(`${mockFolder}/unique-id.jpg`);
-    expect(new AWS.S3().upload).toHaveBeenCalledWith(expect.objectContaining({
-      Bucket: mockBucket,
-      Key: `${mockFolder}/unique-id.jpg`,
-      Body: mockBuffer,
-      ContentType: 'image/jpeg',
-    }));
+    expect(new AWS.S3().upload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Bucket: mockBucket,
+        Key: `${mockFolder}/unique-id.jpg`,
+        Body: mockBuffer,
+        ContentType: 'image/jpeg',
+      }),
+    );
   });
 
   it('should upload an image with resizing', async () => {
@@ -69,21 +70,31 @@ describe('ImageUploadService', () => {
       toBuffer: jest.fn().mockResolvedValue(mockBuffer),
     } as any);
 
-    const result = await service.uploadImage(mockFile, mockBucket, mockFolder, resizeWidth, quality);
+    const result = await service.uploadImage(
+      mockFile,
+      mockBucket,
+      mockFolder,
+      resizeWidth,
+      quality,
+    );
 
     expect(sharp).toHaveBeenCalledWith(mockFile.buffer);
-    expect(sharp().resize).toHaveBeenCalledWith(expect.objectContaining({
-      fit: sharp.fit.contain,
-      width: resizeWidth,
-    }));
+    expect(sharp().resize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        fit: sharp.fit.contain,
+        width: resizeWidth,
+      }),
+    );
     expect(sharp().jpeg).toHaveBeenCalledWith({ quality });
     expect(result).toBe(`${mockFolder}/unique-id.jpg`);
-    expect(new AWS.S3().upload).toHaveBeenCalledWith(expect.objectContaining({
-      Bucket: mockBucket,
-      Key: `${mockFolder}/unique-id.jpg`,
-      Body: mockBuffer,
-      ContentType: 'image/jpeg',
-    }));
+    expect(new AWS.S3().upload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Bucket: mockBucket,
+        Key: `${mockFolder}/unique-id.jpg`,
+        Body: mockBuffer,
+        ContentType: 'image/jpeg',
+      }),
+    );
   });
 
   it('should handle incorrect quality values gracefully', async () => {
@@ -98,16 +109,24 @@ describe('ImageUploadService', () => {
     } as any);
 
     const incorrectQuality = 150;
-    const result = await service.uploadImage(mockFile, mockBucket, mockFolder, undefined, incorrectQuality);
+    const result = await service.uploadImage(
+      mockFile,
+      mockBucket,
+      mockFolder,
+      undefined,
+      incorrectQuality,
+    );
 
     expect(sharp).toHaveBeenCalledWith(mockFile.buffer);
     expect(sharp().jpeg).toHaveBeenCalledWith({ quality: 100 });
     expect(result).toBe(`${mockFolder}/unique-id.jpg`);
-    expect(new AWS.S3().upload).toHaveBeenCalledWith(expect.objectContaining({
-      Bucket: mockBucket,
-      Key: `${mockFolder}/unique-id.jpg`,
-      Body: mockBuffer,
-      ContentType: 'image/jpeg',
-    }));
+    expect(new AWS.S3().upload).toHaveBeenCalledWith(
+      expect.objectContaining({
+        Bucket: mockBucket,
+        Key: `${mockFolder}/unique-id.jpg`,
+        Body: mockBuffer,
+        ContentType: 'image/jpeg',
+      }),
+    );
   });
 });

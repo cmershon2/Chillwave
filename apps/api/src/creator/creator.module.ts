@@ -13,6 +13,12 @@ import { ImageModule } from '../image/image.module';
 @Module({
   controllers: [CreatorController, ProfileController, ProfileController],
   providers: [CreatorService, RequestService, ProfileService],
-  imports: [RequestModule, EmailModule, PersistenceModule, ProfileModule, ImageModule],
+  imports: [
+    RequestModule,
+    EmailModule,
+    PersistenceModule,
+    ProfileModule,
+    ImageModule,
+  ],
 })
 export class CreatorModule {}

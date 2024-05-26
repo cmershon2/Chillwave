@@ -5,8 +5,8 @@ import { ProfileController } from './controllers/profile.controller';
 import { ImageModule } from '../../image/image.module';
 
 @Module({
-  imports:[PersistenceModule, ImageModule],
-  controllers:[ProfileController],
+  imports: [PersistenceModule, ImageModule],
+  controllers: [ProfileController],
   exports: [ProfileService],
   providers: [ProfileService],
 })

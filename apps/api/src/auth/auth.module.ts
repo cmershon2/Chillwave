@@ -15,7 +15,7 @@ import { JwtConfig } from './jwtConfig.class';
     UserModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
-      useClass: JwtConfig
+      useClass: JwtConfig,
     }),
   ],
   controllers: [AuthController],

@@ -13,7 +13,9 @@ describe('RequestController', () => {
   const mockRequestService = {
     create: jest.fn().mockResolvedValue({ id: 1, userId: 1 }),
     get: jest.fn().mockResolvedValue({ id: 1, userId: 1 }),
-    update: jest.fn().mockResolvedValue({ id: 1, userId: 1, status: 'updated' }),
+    update: jest
+      .fn()
+      .mockResolvedValue({ id: 1, userId: 1, status: 'updated' }),
     delete: jest.fn().mockResolvedValue({ id: 1 }),
     verify: jest.fn().mockResolvedValue({ id: 1, emailId: 1, verified: true }),
   };
@@ -66,7 +68,7 @@ describe('RequestController', () => {
       approvedAt: undefined,
       accountAge: 0,
       status: 'PENDING',
-      reason: ''
+      reason: '',
     };
     const result = await controller.updateRequest(1, updateDto);
     expect(result).toEqual({ id: 1, userId: 1, status: 'updated' });
@@ -98,9 +100,11 @@ describe('RequestController', () => {
       approvedAt: undefined,
       accountAge: 0,
       status: 'PENDING',
-      reason: ''
+      reason: '',
     };
-    await expect(controller.updateRequest(2, updateDto)).rejects.toThrow('Not Found');
+    await expect(controller.updateRequest(2, updateDto)).rejects.toThrow(
+      'Not Found',
+    );
   });
 
   it('should handle error on delete when request does not exist', async () => {
@@ -111,6 +115,8 @@ describe('RequestController', () => {
   it('should handle error on verify when request does not exist', async () => {
     jest.spyOn(service, 'verify').mockRejectedValueOnce(new Error('Not Found'));
     const verifyDto: VerifyCreatorRequest = { token: '123456' };
-    await expect(controller.verifyEmailRequest(2, 1, verifyDto)).rejects.toThrow('Not Found');
+    await expect(
+      controller.verifyEmailRequest(2, 1, verifyDto),
+    ).rejects.toThrow('Not Found');
   });
 });
