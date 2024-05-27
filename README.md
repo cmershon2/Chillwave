@@ -1,6 +1,6 @@
-# Flixify
+# Chillwave
 
-Flixify is an open-source video sharing platform created for content creators to upload their videos and engage with users through interactive features.
+Chillwave is an open-source video sharing platform created for content creators to upload their videos and engage with users through interactive features.
 
 ## Technologies Used
 
@@ -26,7 +26,7 @@ Flixify is an open-source video sharing platform created for content creators to
 - [Prettier](https://prettier.io) for code formatting
 
 ## Setup
-Flixify uses turborepo and yarn workspaces for monorepo workflow.
+Chillwave uses turborepo and yarn workspaces for monorepo workflow.
 
 ### Prerequisites 
 - Install nps by running 
