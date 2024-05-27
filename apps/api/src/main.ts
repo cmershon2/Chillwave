@@ -10,9 +10,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Flixify')
+    .setTitle('Chillwave')
     .setDescription(
-      'Flixify is an open-source video sharing platform created for content creators to upload their videos and engage with users through interactive features.',
+      'Chillwave is an open-source video sharing platform created for content creators to upload their videos and engage with users through interactive features.',
     )
     .setVersion('1.0-Alpha')
     .addTag('User')
