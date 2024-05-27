@@ -1,4 +1,4 @@
-# Chillwave
+![Chillwave Header](https://github.com/cmershon2/Chillwave/blob/main/docs/Chillwave-Headers.png?raw=true)
 
 Chillwave is an open-source video sharing platform created for content creators to upload their videos and engage with users through interactive features.
 
