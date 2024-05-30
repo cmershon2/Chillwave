@@ -1,48 +1,51 @@
 import { Injectable } from '@nestjs/common';
 import * as tf from '@tensorflow/tfjs-node';
 import * as path from 'path';
-import { extractFramesFromVideo } from './utils/content-filter.utils';
+import * as nsfwjs from "nsfwjs";
+import { extractFramesFromVideo, interpretPrediction, preprocess } from './utils/content-filter.utils';
+import { spawn } from 'child_process';
+import { Constants } from './constants/content-filter.constants';
+import { framePrediction } from './types/frame-prediction.type';
 
 @Injectable()
 export class ContentFilterService {
 
-    private model: tf.GraphModel;
+    private model: nsfwjs.NSFWJS;
 
     constructor() {
         this.loadModel();
     }
 
     private async loadModel() {
-        // Get the path to the model directory
-        const modelPath = path.join(__dirname, '..', 'models', 'default-f16');
-    
-        // Load the TensorFlow model from the model directory
-        this.model = await tf.loadGraphModel(`file://${modelPath}/model.json`);
+        this.model = await nsfwjs.load("MobileNetV2Mid");
     }
 
-    async detectExplicitVideoContent(videoPath: string): Promise<boolean> {
+    async detectExplicitVideoContent(videoPath: string): Promise<framePrediction[]> {
+
         // Extract frames from the video at a specific sampling rate
         const frames = await extractFramesFromVideo(videoPath);
     
         // Classify each frame using the TensorFlow model
         const predictions = await Promise.all(
-          frames.map((frame) => this.classifyFrame(frame)),
+          frames.map((frame, index) => this.classifyFrame(frame, index)),
         );
     
         // Determine if any frame is classified as explicit content
-        const hasExplicitContent = predictions.some((prediction) => prediction);
-    
-        return hasExplicitContent;
+        const flaggedFrames = predictions.filter((prediction) => prediction.isExplicit)
+
+        return flaggedFrames;
       }
 
-      private async classifyFrame(frame: tf.TensorLike): Promise<boolean> {
+      private async classifyFrame(frame: Buffer, index: number): Promise<framePrediction> {
         // Preprocess the frame for the TensorFlow model
-        const preprocessedFrame = preprocess(frame);
-    
+        const preprocessedFrame = await preprocess(frame);
+        const timestampEstimate = index * Constants.VIDEO_SAMPLE_RATE;
+
         // Run the TensorFlow model on the preprocessed frame
-        const prediction = this.model.predict(preprocessedFrame);
-    
-        // Interpret the prediction and return true if explicit content is detected
-        return interpretPrediction(prediction);
+        const predictions = await this.model.classify(preprocessedFrame);
+
+        const analysis = interpretPrediction(timestampEstimate, predictions);
+
+        return analysis;
       }
 }
