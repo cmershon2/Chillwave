@@ -35,21 +35,6 @@ export async function extractFramesFromVideo(videoPath: string): Promise<Buffer[
   });
 }
 
-export async function preprocess(frame: Buffer): Promise<tf.Tensor3D> {
-  // Decoded image in UInt8 Byte array
-  const image = await sharp(frame).resize({width:299}).raw().toBuffer({resolveWithObject: true});
-
-  const numChannels = 3;
-  const numPixels = image.info.width * image.info.height;
-  const values = new Int32Array(numPixels * numChannels);
-
-  for (let i = 0; i < numPixels; i++)
-    for (let c = 0; c < numChannels; ++c)
-      values[i * numChannels + c] = image.data[i * 4 + c];
-
-  return tf.tensor3d(values, [image.info.height, image.info.width, numChannels], "int32");
-}
-
 export function interpretPrediction(timestamp, predictions: predictionType[]) : framePrediction {
   let isExplicit = false;
 

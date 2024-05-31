@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as tf from '@tensorflow/tfjs-node';
-import * as path from 'path';
 import * as nsfwjs from "nsfwjs";
-import { extractFramesFromVideo, interpretPrediction, preprocess } from './utils/content-filter.utils';
-import { spawn } from 'child_process';
+import { extractFramesFromVideo, interpretPrediction } from './utils/content-filter.utils';
 import { Constants } from './constants/content-filter.constants';
 import { framePrediction } from './types/frame-prediction.type';
 
@@ -22,7 +20,7 @@ export class ContentFilterService {
 
     async detectExplicitVideoContent(videoPath: string): Promise<framePrediction[]> {
 
-        // Extract frames from the video at a specific sampling rate
+        // Extract frames from the video
         const frames = await extractFramesFromVideo(videoPath);
     
         // Classify each frame using the TensorFlow model
@@ -33,12 +31,16 @@ export class ContentFilterService {
         // Determine if any frame is classified as explicit content
         const flaggedFrames = predictions.filter((prediction) => prediction.isExplicit)
 
-        return flaggedFrames;
+        if(flaggedFrames){
+            // TODO write to db that video contains explicit content
+        }
+
+        return predictions;
       }
 
       private async classifyFrame(frame: Buffer, index: number): Promise<framePrediction> {
-        // Preprocess the frame for the TensorFlow model
-        const preprocessedFrame = await preprocess(frame);
+
+        const preprocessedFrame = tf.node.decodeJpeg(frame, 3); // decode jpeg buffer to raw tensor
         const timestampEstimate = index * Constants.VIDEO_SAMPLE_RATE;
 
         // Run the TensorFlow model on the preprocessed frame
