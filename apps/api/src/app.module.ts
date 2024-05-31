@@ -11,18 +11,13 @@ import { EmailModule } from './email/email.module';
 import { ImageModule } from './image/image.module';
 import { BullModule } from '@nestjs/bull';
 import { UploadModule } from './upload/upload.module';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: validationSchemaForEnv,
-    }),
-    BullModule.forRoot({
-      redis: {
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT),
-      },
     }),
     PersistenceModule,
     AuthModule,
@@ -31,6 +26,7 @@ import { UploadModule } from './upload/upload.module';
     EmailModule,
     ImageModule,
     UploadModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],
