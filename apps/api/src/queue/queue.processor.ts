@@ -5,7 +5,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { ContentFilterService } from '../upload/content-filter/content-filter.service';
 
 @Injectable()
-@Processor('video-upload')
+@Processor('{video-upload}')
 export class QueueProcessor {
   constructor(
     private readonly contentFilterService: ContentFilterService,
@@ -22,6 +22,7 @@ export class QueueProcessor {
     if (filterResult.passed) {
       // Upload video to S3
       // await this.s3Service.uploadVideo(videoData);
+      console.log('video passed, upload to S3!')
     } else {
       // Handle rejected video
       console.log('Video rejected by content filter:', filterResult);

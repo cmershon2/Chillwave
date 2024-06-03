@@ -14,7 +14,7 @@ import { ContentFilterModule } from 'src/upload/content-filter/content-filter.mo
       },
     }),
     BullModule.registerQueue({
-      name: 'video-upload',
+      name: '{video-upload}',
     }),
     ContentFilterModule
   ],
