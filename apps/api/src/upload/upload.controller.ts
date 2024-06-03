@@ -1,16 +1,18 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ContentFilterService } from './content-filter/content-filter.service';
-import { TestUpload } from './dto/test-upload.dto';
+import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { QueueService } from '../queue/queue.service';
 
 @Controller('upload')
 export class UploadController {
-    constructor(private readonly contentFilterService: ContentFilterService){}
+    constructor(private readonly queueService: QueueService){}
 
-    @Post('test/v1/video')
-    uploadVideo(
-        @Body() testUpload: TestUpload
+    @Post('video')
+    @UseInterceptors(FileInterceptor('video'))
+    async uploadVideo(
+        @UploadedFile() file: Express.Multer.File
     ){
-        return this.contentFilterService.detectExplicitVideoContent(testUpload.videoPath);
+        await this.queueService.enqueueVideoUpload(file);
+        return { message: 'Video upload queued' };
     }
 
 }
