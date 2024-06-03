@@ -19,29 +19,34 @@ export class ContentFilterService {
         this.model = await nsfwjs.load("MobileNetV2Mid");
     }
 
-    async detectExplicitVideoContent(videoPath: string): Promise<PredictionResults> {
+    async detectExplicitVideoContent(videoBuffer: Buffer): Promise<PredictionResults> {
 
-        // Extract frames from the video
-        const frames = await extractFramesFromVideo(videoPath);
-        let results : PredictionResults = { passed: true, reason:'', flaggedFrames:[] }; 
+      console.log('detect log: ',typeof videoBuffer);
+
+      // Extract frames from the video
+      const frames = await extractFramesFromVideo(videoBuffer);
+
+      console.log('found this many frames: ',frames.length);
+
+      let results : PredictionResults = { passed: true, reason:'', flaggedFrames:[] }; 
     
-        // Classify each frame using the TensorFlow model
-        const predictions = await Promise.all(
-          frames.map((frame, index) => this.classifyFrame(frame, index)),
-        );
-    
-        // Determine if any frame is classified as explicit content
-        const flaggedFrames = predictions.filter((prediction) => prediction.isExplicit)
+      // Classify each frame using the TensorFlow model
+      const predictions = await Promise.all(
+        frames.map((frame, index) => this.classifyFrame(frame, index)),
+      );
+  
+      // Determine if any frame is classified as explicit content
+      const flaggedFrames = predictions.filter((prediction) => prediction.isExplicit==true)
 
-        if(flaggedFrames){
-            // TODO write to db that video contains explicit content
-            results.passed = false;
-            results.reason = 'Explicit content found'
-            results.flaggedFrames = flaggedFrames.map(frame => frame.timestamp)
-        }
-
-        return results;
+      if(flaggedFrames.length > 0){
+        // TODO write to db that video contains explicit content
+        results.passed = false;
+        results.reason = 'Explicit content found'
+        results.flaggedFrames = flaggedFrames.map(frame => frame.timestamp)
       }
+
+      return results;
+    }
 
       private async classifyFrame(frame: Buffer, index: number): Promise<framePrediction> {
 
