@@ -1,12 +1,11 @@
-// queue.processor.ts
 import {Job } from 'bull';
 import { Injectable } from '@nestjs/common';
 import { OnQueueError, Process, Processor } from '@nestjs/bull';
-import { ContentFilterService } from '../upload/content-filter/content-filter.service';
+import { ContentFilterService } from '../../upload/content-filter/content-filter.service';
 
 @Injectable()
 @Processor('{video-upload}')
-export class QueueProcessor {
+export class VideoUploadProcessor {
   constructor(
     private readonly contentFilterService: ContentFilterService,
     // private readonly s3Service: S3Service,

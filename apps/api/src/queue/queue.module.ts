@@ -2,8 +2,8 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { QueueService } from './queue.service';
-import { QueueProcessor } from './queue.processor';
-import { ContentFilterModule } from 'src/upload/content-filter/content-filter.module';
+import { ContentFilterModule } from '../upload/content-filter/content-filter.module';
+import { VideoUploadProcessor } from './processors/video-upload.processor';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { ContentFilterModule } from 'src/upload/content-filter/content-filter.mo
     }),
     ContentFilterModule
   ],
-  providers: [QueueService, QueueProcessor],
+  providers: [QueueService, VideoUploadProcessor],
   exports: [QueueService],
 })
 export class QueueModule {}
