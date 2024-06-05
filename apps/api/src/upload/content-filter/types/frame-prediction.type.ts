@@ -1,7 +1,8 @@
 import { predictionType } from "nsfwjs";
 
-export type framePrediction = {
+export type FramePrediction = {
     timestamp: number;
     isExplicit: boolean;
+    review: boolean;
     prediction: predictionType[];
 }

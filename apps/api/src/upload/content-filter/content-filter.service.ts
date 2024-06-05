@@ -3,7 +3,7 @@ import * as tf from '@tensorflow/tfjs-node';
 import * as nsfwjs from "nsfwjs";
 import { extractFramesFromVideo, interpretPrediction } from './utils/content-filter.utils';
 import { Constants } from './constants/content-filter.constants';
-import { framePrediction } from './types/frame-prediction.type';
+import { FramePrediction } from './types/frame-prediction.type';
 import { PredictionResults } from './types/prediction-results.type';
 
 @Injectable()
@@ -21,14 +21,16 @@ export class ContentFilterService {
 
     async detectExplicitVideoContent(videoBuffer: Buffer): Promise<PredictionResults> {
 
-      console.log('detect log: ',typeof videoBuffer);
-
       // Extract frames from the video
       const frames = await extractFramesFromVideo(videoBuffer);
 
-      console.log('found this many frames: ',frames.length);
-
-      let results : PredictionResults = { passed: true, reason:'', flaggedFrames:[] }; 
+      let results : PredictionResults = { 
+        passed: true, 
+        review: false, 
+        reason:'', 
+        flaggedFrames:[],
+        frameData: [],
+      }; 
     
       // Classify each frame using the TensorFlow model
       const predictions = await Promise.all(
@@ -36,19 +38,36 @@ export class ContentFilterService {
       );
   
       // Determine if any frame is classified as explicit content
-      const flaggedFrames = predictions.filter((prediction) => prediction.isExplicit==true)
+      const reviewFrames = predictions.filter((prediction) => prediction.isExplicit==true && prediction.review==true)
+      const explicitFrames = predictions.filter((prediction) => prediction.isExplicit==true && prediction.review==false)
+      
+      // Calculate % of possible explicit content
+      const explicitThreshold = explicitFrames.length / frames.length;
 
-      if(flaggedFrames.length > 0){
-        // TODO write to db that video contains explicit content
+      // Handle cases that the video needs to be reviewed manually
+      if(reviewFrames.length > 0 && explicitThreshold < Constants.VIDEO_EXPLICIT_THRESHOLD) {
         results.passed = false;
-        results.reason = 'Explicit content found'
-        results.flaggedFrames = flaggedFrames.map(frame => frame.timestamp)
+        results.review = true;
+        results.reason = 'Possible explicit content found, further review required'
+        results.flaggedFrames = reviewFrames.map(frame => frame.timestamp)
+        results.frameData = predictions
+        return results;
+      }
+
+      // Handle cases that the video contains large amounts of explicit content
+      if(explicitThreshold > Constants.VIDEO_EXPLICIT_THRESHOLD){
+        results.passed = false;
+        results.review = false;
+        results.reason = 'Exceeding amount of explicit content found'
+        results.flaggedFrames = reviewFrames.map(frame => frame.timestamp)
+        results.frameData = predictions;
+        return results;
       }
 
       return results;
     }
 
-      private async classifyFrame(frame: Buffer, index: number): Promise<framePrediction> {
+      private async classifyFrame(frame: Buffer, index: number): Promise<FramePrediction> {
 
         const preprocessedFrame = tf.node.decodeJpeg(frame, 3); // decode jpeg buffer to raw tensor
         const timestampEstimate = index * Constants.VIDEO_SAMPLE_RATE;

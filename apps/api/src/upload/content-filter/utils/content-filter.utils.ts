@@ -1,9 +1,7 @@
-import * as tf from '@tensorflow/tfjs-node';
-import sharp from 'sharp';
 import { spawn } from 'child_process';
 import { Constants } from '../constants/content-filter.constants';
 import { predictionType } from 'nsfwjs';
-import { framePrediction } from '../types/frame-prediction.type';
+import { FramePrediction } from '../types/frame-prediction.type';
 
 const Pipe2Jpeg = require('pipe2jpeg');
 
@@ -51,14 +49,19 @@ export async function extractFramesFromVideo(videoBuffer: Buffer): Promise<Buffe
   });
 }
 
-export function interpretPrediction(timestamp, predictions: predictionType[]) : framePrediction {
+export function interpretPrediction(timestamp, predictions: predictionType[]) : FramePrediction {
   let isExplicit = false;
+  let review = false;
 
   for(const prediction of predictions){
-    if (Constants.VIDEO_CATEGORIES_TO_FLAG.includes(prediction.className) && prediction.probability > Constants.VIDEO_CATEGORIES_PREDICTION_THRESHOLD) {
-      isExplicit = true
+    if (Constants.VIDEO_CATEGORIES_TO_FLAG.includes(prediction.className)) {
+      isExplicit = true;
+
+      if(prediction.probability > Constants.VIDEO_CATEGORIES_PREDICTION_MIN_THRESHOLD && prediction.probability < Constants.VIDEO_CATEGORIES_PREDICTION_MAX_THRESHOLD){
+        review = true;
+      }
     }
   }
   
-  return {timestamp, isExplicit, prediction: predictions};
+  return {timestamp, isExplicit, review, prediction: predictions};
 }
