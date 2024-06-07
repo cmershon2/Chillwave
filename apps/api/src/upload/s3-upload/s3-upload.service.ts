@@ -3,7 +3,7 @@ import * as AWS from 'aws-sdk';
 import { PassThrough } from 'stream';
 
 @Injectable()
-export class S3Service {
+export class S3UploadService {
   private s3: AWS.S3;
 
   constructor() {
