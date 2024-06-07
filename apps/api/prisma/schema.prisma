@@ -11,16 +11,20 @@ datasource db {
 }
 
 model User {
-  id             Int          @id @default(autoincrement())
-  email          String       @unique
-  displayName    String
-  password       String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  userProfile    UserProfile?
-  roles          Roles[]      @default([USER])
-  creatorRequest CreatorRequest?
-  creatorProfile CreatorProfile?
+  id                Int          @id @default(autoincrement())
+  email             String       @unique
+  displayName       String
+  password          String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  userProfile       UserProfile?
+  roles             Roles[]      @default([USER])
+  creatorRequest    CreatorRequest?
+  creatorProfile    CreatorProfile?
+
+  violations        UserViolation[]
+  createdViolations UserViolation[] @relation("CreatedViolations")
+  updatedViolations UserViolation[] @relation("UpdatedViolations")
 }
 
 model Session {
@@ -41,12 +45,44 @@ model UserProfile {
   updatedAt     DateTime    @updatedAt
 }
 
+model UserViolation {
+  id            Int       @id @default(autoincrement())
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
+  createdAt     DateTime  @default(now())
+  createdBy     User      @relation("CreatedViolations", fields: [createdById], references: [id])
+  createdById   Int
+  updatedAt     DateTime  @updatedAt
+  updatedBy     User      @relation("UpdatedViolations", fields: [updatedById], references: [id])
+  updatedById   Int
+  type          Violations
+  status        ViolationStatus
+  reason        String
+}
+
 enum Roles {
   USER
   CREATOR
   EDITOR
   MODERATOR
   ADMIN
+}
+
+enum Violations {
+  EXPLICIT_CONTENT
+  VIOLENT_CONTENT
+  HARASSMENT
+  MISINFORMATION
+  ILLEGAL_ACTIVITIES
+  INTELLECTUAL_PROPERTY
+  SPAM
+  COMMUNITY_GUIDELINES
+}
+
+enum ViolationStatus {
+  PENDING
+  DENIED
+  APPROVED
 }
 
 model CreatorProfile {
@@ -87,4 +123,39 @@ model CreatorEmailVerification {
   updatedAt         DateTime        @updatedAt
   expiresAt         DateTime
   verified          Boolean         @default(false)
+}
+
+model VideoUploadJob {
+  id                  Int @id @default(autoincrement())
+  creatorContent      CreatorContent?
+  duration            Int // video duration in seconds
+  stream              String
+  status              VideoUploadStatus @default(PENDING)
+  frameData           Json[]
+}
+
+enum VideoUploadStatus {
+  PENDING
+  PROCESSING_FILTERING
+  PROCESSING_ENCODING
+  FAILED
+  SUCESS
+  DENIED
+  REVIEW
+}
+
+model CreatorContent {
+  id              String              @id @default(cuid())
+  upload          VideoUploadJob      @relation(fields: [uploadId], references: [id])
+  uploadId        Int                 @unique
+  title           String
+  description     String?
+  displayType     ContentDisplayType  @default(PUBLIC)
+  thumbnail       String?
+}
+
+enum ContentDisplayType {
+  PUBLIC
+  PRIVATE
+  UNLISTED
 }
