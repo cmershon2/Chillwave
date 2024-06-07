@@ -54,10 +54,10 @@ export function interpretPrediction(timestamp, predictions: predictionType[]) : 
   let review = false;
 
   for(const prediction of predictions){
-    if (Constants.VIDEO_CATEGORIES_TO_FLAG.includes(prediction.className)) {
+    if (Constants.VIDEO_CATEGORIES_TO_FLAG.includes(prediction.className) && prediction.probability > Constants.VIDEO_CATEGORIES_PREDICTION_MIN_THRESHOLD) {
       isExplicit = true;
 
-      if(prediction.probability > Constants.VIDEO_CATEGORIES_PREDICTION_MIN_THRESHOLD && prediction.probability < Constants.VIDEO_CATEGORIES_PREDICTION_MAX_THRESHOLD){
+      if(prediction.probability < Constants.VIDEO_CATEGORIES_PREDICTION_MAX_THRESHOLD){
         review = true;
       }
     }
