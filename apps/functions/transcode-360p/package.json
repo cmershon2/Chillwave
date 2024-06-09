@@ -1,0 +1,12 @@
+{
+  "name": "transcode-360p",
+  "version": "1.0.0",
+  "description": "DigitalOcean transcoding function for 360p videos",
+  "main": "index.js",
+  "author": "Casey Mershon",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.1637.0",
+    "fluent-ffmpeg": "^2.1.3"
+  }
+}
