@@ -1,7 +1,7 @@
 {
-  "name": "transcode-360p",
+  "name": "360p",
   "version": "1.0.0",
-  "description": "DigitalOcean transcoding function for 360p videos",
+  "description": "serverless transcoding function for 360p videos",
   "main": "index.js",
   "author": "Casey Mershon",
   "license": "MIT",
