@@ -19,21 +19,39 @@ export class S3UploadService {
   }
 
   async uploadFile(
-    file: Buffer,
+    file: Buffer | PassThrough,
     bucketName: string,
     objectKey: string,
-    contentType: string,
+    filePath?: string,
+    contentType?: string,
+    acl?: string,
   ): Promise<string> {
     const pass = new PassThrough();
     const params = {
       Bucket: bucketName,
       Key: objectKey,
       Body: pass,
-      ContentType: contentType,
     };
 
+    if(contentType){
+      params['ContentType'] = contentType;
+    }
+
+    if(filePath){
+      params['Key'] = filePath + objectKey;
+    }
+
+    if(acl){
+      params['ACL'] = acl;
+    }
+
     try {
-      pass.end(file);
+      if (Buffer.isBuffer(file)) {
+        pass.end(file);
+      } else {
+        file.pipe(pass);
+      }
+      
       const uploadResult = await this.s3.upload(params).promise();
       return uploadResult.Location;
     } catch (err) {
