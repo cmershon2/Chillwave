@@ -63,6 +63,66 @@ async function setExecutablePermissions(filePath) {
   fs.chmodSync(filePath, '755');
 }
 
+async function transcodeVideoStream(readStream, id, tempDir) {
+    return new Promise((resolve, reject) => {
+        Ffmpeg(readStream)
+        .on('start', () => {
+            console.log(`Transcoding ${id} to 480p`);
+        })
+        .on('error', (err, stdout, stderr) => {
+            console.log('Stderr:', stderr);
+            console.error('Error:', err);
+            console.error('Stdout:', stdout);
+            reject(err);
+        })
+        .on('end', async () => {
+            console.log('Transcoding finished.');
+            try {
+                const fileUploadPromises = fs.readdirSync(tempDir).map(file => {
+                    const fileStream = fs.createReadStream(path.join(tempDir, file));
+                    const params = {
+                        Bucket: 'chillwave-video-egress',
+                        Key: `${id}/${file}`,
+                        Body: fileStream
+                    };
+                    console.log(`Uploading ${file} to S3`);
+                    return s3.putObject(params).promise();
+                });
+
+                await Promise.all(fileUploadPromises); // upload output to S3
+                console.log('All files uploaded to S3.');
+                resolve()
+            } catch (uploadError) {
+                console.error('Error uploading files:', uploadError.message);
+                reject(uploadError.message)
+            }
+        })
+        .outputOptions([
+            '-loglevel debug',
+            '-preset ultrafast',
+            '-vf scale=w=842:h=480', 
+            '-c:a aac', 
+            '-ar 48000', 
+            '-b:a 128k', 
+            '-c:v h264', 
+            '-profile:v main', 
+            '-crf 20', 
+            '-g 48', 
+            '-keyint_min 48', 
+            '-sc_threshold 0', 
+            '-b:v 1400k', 
+            '-maxrate 1498k', 
+            '-bufsize 2100k', 
+            '-f hls', 
+            '-hls_time 4', 
+            '-hls_playlist_type vod', 
+            `-hls_segment_filename /tmp/${id}/480p_%d.ts`
+        ])
+        .output(path.join(tempDir, '480p.m3u8')) // output files are temporarily stored in tmp directory
+        .run();
+    });
+}
+
 exports.main = async (args) => {
   const id = args.jobId;
   const ffmpegKey = 'ffmpeg/ffmpeg-release-amd64-static.tar.xz'; // Update with your actual ffmpeg tar.xz key
@@ -116,65 +176,7 @@ exports.main = async (args) => {
 
     const readStream = s3.getObject(inputParams).createReadStream(); // create S3 readStream
 
-    return new Promise((resolve, reject) => {
-        Ffmpeg(readStream)
-        .on('start', () => {
-            console.log(`Transcoding ${id} to 360p`);
-        })
-        .on('stderr', stderrLine => {
-            console.log('Stderr output:', stderrLine);
-        })
-        .on('error', (err, stdout, stderr) => {
-            console.log('Stderr:', stderr);
-            console.error('Error:', err.message);
-            console.error('Stdout:', stdout);
-            reject(err);
-        })
-        .on('end', async () => {
-            console.log('Transcoding finished.');
-            try {
-                const fileUploadPromises = fs.readdirSync(tempDir).map(file => {
-                    const fileStream = fs.createReadStream(path.join(tempDir, file));
-                    const params = {
-                    Bucket: 'chillwave-video-egress',
-                    Key: `${id}/${file}`,
-                    Body: fileStream
-                    };
-                    console.log(`Uploading ${file} to S3`);
-                    return s3.putObject(params).promise();
-                });
-                await Promise.all(fileUploadPromises); // upload output to S3
-                console.log('All files uploaded to S3.');
-                resolve()
-            } catch (uploadError) {
-                console.error('Error uploading files:', uploadError.message);
-                reject(uploadError.message)
-            }
-        })
-        .outputOptions([
-            '-loglevel quiet',
-            '-preset ultrafast',
-            '-vf scale=w=640:h=360',
-            '-c:a aac',
-            '-ar 48000',
-            '-b:a 96k',
-            '-c:v h264',
-            '-profile:v main',
-            '-crf 25',
-            '-g 48',
-            '-keyint_min 48',
-            '-sc_threshold 0',
-            '-b:v 800k',
-            '-maxrate 856k',
-            '-bufsize 600k',
-            '-f hls',
-            '-hls_time 4',
-            '-hls_playlist_type vod',
-            `-hls_segment_filename ${path.join(tempDir, '360p_%d.ts')}`
-        ])
-        .output(path.join(tempDir, '360p.m3u8')) // output files are temporarily stored in tmp directory
-        .run();
-    });
+    await transcodeVideoStream(readStream, id, tempDir);    
 
   } catch (error) {
     console.error('An error occurred:', error.message);

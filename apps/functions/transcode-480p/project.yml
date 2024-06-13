@@ -1,16 +1,16 @@
 parameters: {}
 environment: {}
 packages:
-    - name: sample
+    - name: transcode
       shared: false
       environment: {}
       parameters: {}
       annotations: {}
       functions:
-        - name: hello
+        - name: 480p
           binary: false
           main: ""
-          runtime: nodejs:default
+          runtime: nodejs:18
           web: true
           webSecure: false
           parameters: {}
