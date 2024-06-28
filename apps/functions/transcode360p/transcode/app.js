@@ -106,7 +106,7 @@ exports.lambdaHandler = async (event, context) => {
           }
         })
         .outputOptions([
-          '-preset ultrafast',
+          '-preset veryfast',
           '-vf scale=w=640:h=360', 
           '-c:a aac', 
           '-ar 48000', 
