@@ -9,9 +9,9 @@ import { UserModule } from './user/user.module';
 import { CreatorModule } from './creator/creator.module';
 import { EmailModule } from './email/email.module';
 import { ImageModule } from './image/image.module';
-import { BullModule } from '@nestjs/bull';
 import { UploadModule } from './upload/upload.module';
 import { QueueModule } from './queue/queue.module';
+import { VideoEncodingModule } from './upload/video-encoding/video-encoding.module';
 
 @Module({
   imports: [
@@ -27,6 +27,7 @@ import { QueueModule } from './queue/queue.module';
     ImageModule,
     UploadModule,
     QueueModule,
+    VideoEncodingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

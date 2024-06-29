@@ -2,13 +2,18 @@ import {Job } from 'bull';
 import { Injectable } from '@nestjs/common';
 import { OnQueueError, Process, Processor } from '@nestjs/bull';
 import { ContentFilterService } from '../../upload/content-filter/content-filter.service';
+import { VideoEncodingService } from '../../upload/video-encoding/video-encoding.service';
+import { TranscodeService } from '../../upload/transcode/transcode.service';
+import { S3UploadService } from '../../upload/s3-upload/s3-upload.service';
 
 @Injectable()
 @Processor('{video-upload}')
 export class VideoUploadProcessor {
   constructor(
     private readonly contentFilterService: ContentFilterService,
-    // private readonly s3Service: S3Service,
+    
+    private readonly videoEncodingService: VideoEncodingService,
+    private readonly transcodeService: TranscodeService,
   ) {}
 
   @Process()
@@ -16,7 +21,7 @@ export class VideoUploadProcessor {
     const videoData = job.data;
     const videoBuffer:Buffer = Buffer.from(videoData.buffer.data);
 
-    console.log(videoBuffer, typeof videoBuffer)
+    console.log("📨 Recieved Video")
 
     try{
       // Run video through content filter
@@ -24,9 +29,9 @@ export class VideoUploadProcessor {
 
       if (filterResult.passed) {
         // Upload video to S3
-
-        // await this.s3Service.uploadVideo(videoData);
-        console.log('video passed, transcode & upload to S3!')
+        console.log("✅ Video passed content filter, uploading for transcoding")        
+        await this.transcodeService.transcodeVideo(videoData, 0, '360p');
+        console.log("🚀 Video encoding completed")
       } else {
         // Handle rejected video
         console.log('Video rejected by content filter:', filterResult);
