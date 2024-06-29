@@ -79,23 +79,26 @@ exports.main = async (args) => {
         }
       })
       .outputOptions([
-        '-vf scale=w=640:h=360',
-        '-c:a aac',
-        '-ar 48000',
-        '-b:a 96k',
-        '-c:v h264',
-        '-profile:v main',
-        '-crf 20',
-        '-g 48',
-        '-keyint_min 48',
-        '-sc_threshold 0',
-        '-b:v 800k',
-        '-maxrate 856k',
-        '-bufsize 1200k',
-        '-f hls',
-        '-hls_time 4',
-        '-hls_playlist_type vod',
-        `-hls_segment_filename ${path.join(tempDir, '360p_%d.ts')}`
+        '-preset veryfast',
+          '-vf scale=w=640:h=360', 
+          '-c:a aac', 
+          '-ar 48000', 
+          '-b:a 96k', 
+          '-c:v h264', 
+          '-profile:v main', 
+          '-crf 20', 
+          '-g 48', 
+          '-keyint_min 48', 
+          '-sc_threshold 0', 
+          '-b:v 800k', 
+          '-maxrate 856k', 
+          '-bufsize 1200k', 
+          '-f hls', 
+          '-hls_time 4', 
+          '-hls_playlist_type vod', 
+          `-hls_segment_filename ${tempDir}/360p_%d.ts`,
+          '-tune fastdecode',
+          '-threads 6'
       ])
       .output(path.join(tempDir, '360p.m3u8')) // output files are temporarily stored in tmp directory
       .run();

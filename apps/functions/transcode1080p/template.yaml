@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+  
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 900
+
+Resources:
+  TranscodingGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        ApiKeyRequired: true
+  Transcode1080pFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: transcode/
+      Handler: app.lambdaHandler
+      Runtime: nodejs20.x
+      MemorySize: 3008
+      Layers:
+        - arn:aws:lambda:us-east-1:533267451363:layer:ffmpeg:3
+      Architectures:
+        - arm64
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+              Resource: arn:aws:ssm:us-east-1:533267451363:parameter/*
+            - Effect: Allow
+              Action:
+                - ssm:DescribeParameters
+              Resource: "*"
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TranscodingGateway
+            Path: /
+            Method: post
+            Auth:
+              ApiKeyRequired: true

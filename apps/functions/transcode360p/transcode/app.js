@@ -113,7 +113,7 @@ exports.lambdaHandler = async (event, context) => {
           '-b:a 96k', 
           '-c:v h264', 
           '-profile:v main', 
-          '-crf 22', 
+          '-crf 20', 
           '-g 48', 
           '-keyint_min 48', 
           '-sc_threshold 0', 
