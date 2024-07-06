@@ -4,13 +4,13 @@ name: api-ci
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - "apps/api/**"
   pull_request:
-    branches: [master]
+    branches: [main]
     paths:
       - "apps/api/**"
 
@@ -30,7 +30,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [20.x]
 
     steps:
       - uses: actions/checkout@v2
