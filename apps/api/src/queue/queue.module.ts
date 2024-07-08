@@ -17,9 +17,10 @@ import { S3UploadModule } from 'src/upload/s3-upload/s3-upload.module';
         password: process.env.REDIS_PASSWORD
       },
     }),
-    BullModule.registerQueue({
-      name: '{video-upload}',
-    }),
+    BullModule.registerQueue(
+      {name: '{video-upload}'},
+      {name: '{transcoding}'}
+    ),
     ContentFilterModule,
     VideoEncodingModule,
     TranscodeModule,
