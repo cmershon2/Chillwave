@@ -17,7 +17,7 @@ services:
     image: 'docker.dragonflydb.io/dragonflydb/dragonfly'
     ulimits:
       memlock: -1
-    command: ["--cluster_mode=emulated", "--lock_on_hashtags"]
+    command: ["--cluster_mode=emulated", "--lock_on_hashtags", "--requirepass=youshallnotpass"]
     ports:
       - "6379:6379"
     # For better performance, consider `host` mode instead `port` to avoid docker NAT.
