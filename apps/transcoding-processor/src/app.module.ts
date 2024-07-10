@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { validationSchemaForEnv } from './config/environment-variables';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -8,6 +9,7 @@ import { validationSchemaForEnv } from './config/environment-variables';
       isGlobal: true,
       validationSchema: validationSchemaForEnv,
     }),
+    QueueModule,
   ],
   providers: [],
 })

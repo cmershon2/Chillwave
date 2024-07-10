@@ -6,6 +6,7 @@ export interface EnvironmentVariables {
   S3_ACCESS_KEY_SECRET: string;
   S3_REGION: string;
   REDIS_HOST: string;
+  REDIS_USERNAME: string;
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
 }
@@ -17,5 +18,6 @@ export const validationSchemaForEnv = Joi.object<EnvironmentVariables, true>({
   S3_REGION: Joi.string().required(),
   REDIS_HOST: Joi.string().required(),
   REDIS_PORT: Joi.number().required(),
+  REDIS_USERNAME: Joi.string().required(),
   REDIS_PASSWORD: Joi.string().required(),
 });
