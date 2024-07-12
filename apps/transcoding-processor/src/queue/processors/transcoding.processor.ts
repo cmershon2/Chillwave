@@ -80,7 +80,7 @@ export class TranscodingProcessor extends WorkerHost {
 
   @OnWorkerEvent('ready')
   async onReady() {
-    console.log('Starting Worker...');
+    console.log('Starting Transcoding Worker...');
     try {
       const counts = await this.transcodingQueue.getJobCounts();
       console.log('Queue Connected:', counts);
