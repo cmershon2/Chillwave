@@ -1,53 +1,63 @@
-import {Job } from 'bull';
+import { Job } from 'bullmq';
 import { Injectable } from '@nestjs/common';
-import { OnQueueError, Process, Processor } from '@nestjs/bull';
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { ContentFilterService } from '../../upload/content-filter/content-filter.service';
-import { VideoEncodingService } from '../../upload/video-encoding/video-encoding.service';
-import { TranscodeService } from '../../upload/transcode/transcode.service';
-import { S3UploadService } from '../../upload/s3-upload/s3-upload.service';
+import { QueueService } from '../queue.service';
+import AWS from 'aws-sdk';
 
 @Injectable()
 @Processor('{video-upload}')
-export class VideoUploadProcessor {
+export class VideoUploadProcessor extends WorkerHost {
+
   constructor(
     private readonly contentFilterService: ContentFilterService,
-    
-    private readonly videoEncodingService: VideoEncodingService,
-    private readonly transcodeService: TranscodeService,
-  ) {}
+    private readonly queueService: QueueService,
+  ) {
+    super();
+  }
 
-  @Process()
-  async processVideoUpload(job: Job<any>) {
-    const videoData = job.data;
-    const videoBuffer:Buffer = Buffer.from(videoData.buffer.data);
+  async process(job: Job<any>): Promise<void> {
 
-    console.log("📨 Recieved Video")
+    console.log(`📨 Received Video: ${job.data.key}`);
 
-    try{
+    try {
+
       // Run video through content filter
-      const filterResult = await this.contentFilterService.detectExplicitVideoContent(videoBuffer);
+      const filterResult = await this.contentFilterService.detectExplicitVideoContent(job.data.key);
 
       if (filterResult.passed) {
         // Upload video to S3
-        console.log("✅ Video passed content filter, uploading for transcoding")        
-        await this.transcodeService.transcodeVideo(videoData, 0, '360p');
-        console.log("🚀 Video encoding completed")
+        console.log('✅ Video passed content filter, uploading for transcoding');
+        await job.moveToCompleted('Video passed content filter',job.token)
+        return;
+
       } else {
         // Handle rejected video
         console.log('Video rejected by content filter:', filterResult);
+        throw filterResult;
       }
     } catch (error) {
       // Handle errors
       console.error('Error processing video upload:', error);
-      // Optionally, you can throw the error to mark the job as failed
+      await job.moveToFailed(new Error(`Error processing video upload: ${error}`), job.token);
       throw error;
     }
   }
 
-  @OnQueueError()
-  async handleQueueError(error: Error) {
+  @OnWorkerEvent('error')
+  async handleQueueError(job: Job, error: Error): Promise<void> {
     // Handle errors that occur during job processing
     console.error('Queue error:', error);
     // TODO log the error, send notifications, or take other actions
+  }
+
+  @OnWorkerEvent('completed')
+  async onCompleted(job: Job): Promise<void> {
+    // Once the upload job is completed, add a job to the transcoding queue
+    await this.queueService.enqueueTranscoding({
+      key: job.data.key,
+    });
+
+    console.log('🚀 Job added to transcoding queue');
   }
 }

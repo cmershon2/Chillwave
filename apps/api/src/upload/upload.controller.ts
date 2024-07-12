@@ -1,7 +1,8 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { QueueService } from '../queue/queue.service';
 import { v4 as uuidv4 } from 'uuid';
+import { S3UploadService } from './s3-upload/s3-upload.service';
 import { UploadService } from './upload.service';
 
 @Controller('upload')
@@ -17,14 +18,51 @@ export class UploadController {
         @UploadedFile() file: Express.Multer.File
     ){
         const fileName = uuidv4();
-        await this.uploadService.uploadFile(file, fileName);
-
         const data = {
-            key:fileName
+            key: fileName
+        }
+
+        await this.uploadService.managedVideoUpload(file, fileName);
+        await this.queueService.enqueueVideoUpload(data);
+        return { 
+            message: 'Video upload queued',
+            data: {
+                key: fileName
+            }
+        };
+    }
+
+    @Post('video/:id/retry')
+    async retryVideoProcess(
+        @Param('id') id: string
+    ){
+        const data = {
+            key: id
         }
 
         await this.queueService.enqueueVideoUpload(data);
-        return { message: 'Video upload queued' };
+        return { 
+            message: 'Video upload queued',
+            data: {
+                key: id
+            }
+        };
     }
 
+    @Post('video/:id/retry-transcoding')
+    async retryVideoTranscoding(
+        @Param('id') id: string
+    ){
+        const data = {
+            key: id
+        }
+
+        await this.queueService.enqueueTranscoding(data);
+        return { 
+            message: 'Video transcode queued',
+            data: {
+                key: id
+            }
+        };
+    }
 }
