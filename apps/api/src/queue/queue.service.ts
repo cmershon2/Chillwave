@@ -1,19 +1,24 @@
-import { InjectQueue } from '@nestjs/bull';
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { Queue } from 'bull';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class QueueService {
     constructor(
         @InjectQueue('{video-upload}') private readonly videoUploadQueue: Queue,
-        @InjectQueue('{transcoding}') private readonly transcodingQueue: Queue,
+        @InjectQueue('{video-transcoding}') private readonly transcodingQueue: Queue,
+        @InjectQueue('{video-content-filtering}') private readonly contentFilterQueue: Queue,
     ) {}
 
-    async enqueueVideoUpload(videoData: any) {
-        await this.videoUploadQueue.add(videoData);
+    async enqueueVideoUpload(videoData: object) {
+        await this.videoUploadQueue.add('upload-video',videoData);
     }
 
-    async enqueueTranscoding(data: any){
-        await this.transcodingQueue.add(data);
+    async enqueueContentFilter(data: object) {
+        await this.contentFilterQueue.add('filter-video', data);
+    }
+
+    async enqueueTranscoding(data: object){
+        await this.transcodingQueue.add('transcode-video', data);
     }
 }

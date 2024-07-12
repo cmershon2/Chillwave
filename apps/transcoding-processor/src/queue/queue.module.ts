@@ -17,6 +17,9 @@ import { TranscodingProcessor } from './processors/transcoding.processor';
     BullModule.registerQueue({
       name: '{video-transcoding}',
     }),
+    BullModule.registerQueue({
+      name: '{video-content-filtering}',
+    }),
   ],
   providers: [TranscodingProcessor],
 })
