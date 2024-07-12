@@ -2,14 +2,15 @@ import { Controller, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/
 import { FileInterceptor } from '@nestjs/platform-express';
 import { QueueService } from '../queue/queue.service';
 import { v4 as uuidv4 } from 'uuid';
-import { S3UploadService } from './s3-upload/s3-upload.service';
 import { UploadService } from './upload.service';
+import { S3clientService } from '../s3client/s3client.service';
 
 @Controller('upload')
 export class UploadController {
     constructor(
         private readonly queueService: QueueService,
         private readonly uploadService: UploadService,
+        private readonly s3Client: S3clientService,
     ){}
 
     @Post('video')
@@ -22,7 +23,7 @@ export class UploadController {
             key: fileName
         }
 
-        await this.uploadService.managedVideoUpload(file, fileName);
+        await this.s3Client.uploadFile(file.buffer, 'chillwave-video-intake', fileName, '')
         await this.queueService.enqueueVideoUpload(data);
         return { 
             message: 'Video upload queued',

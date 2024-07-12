@@ -1,7 +1,8 @@
-import { GetObjectCommand, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
+import { GetObjectCommand, ObjectCannedACL, S3Client, S3ClientConfig } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { NodeHttpHandler } from '@aws-sdk/node-http-handler';
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { Readable } from 'stream';
+import { PassThrough, Readable } from 'stream';
 
 @Injectable()
 export class S3clientService implements OnModuleInit {
@@ -47,6 +48,49 @@ export class S3clientService implements OnModuleInit {
         } catch (error) {
             this.logger.error(`Error getting object from S3: ${error}`, error);
             throw error;
+        }
+    }
+
+    async uploadFile(
+        file: Buffer | PassThrough,
+        bucketName: string,
+        objectKey: string,
+        filePath?: string,
+        contentType?: string,
+        acl?: ObjectCannedACL,
+    ): Promise<string> {
+        const pass = new PassThrough();
+        const params = {
+            Bucket: bucketName,
+            Key: filePath ? `${filePath}${objectKey}` : objectKey,
+            Body: pass,
+            ContentType: contentType,
+            ACL: acl,
+        };
+
+        try {
+            if (Buffer.isBuffer(file)) {
+                pass.end(file);
+            } else {
+                file.pipe(pass);
+            }
+
+            const upload = new Upload({
+                client: this.s3Client,
+                params,
+            });
+
+            upload.on('httpUploadProgress', (progress) => {
+                let completionCalculation = Math.round((progress.loaded/progress.total) * 100);
+                console.log(`Upload Progress: ${completionCalculation}% - ${progress.loaded}/${progress.total}`);
+            });
+
+            const uploadResult = await upload.done();
+            this.logger.log(`Successfully uploaded ${params.Key} to ${bucketName}`);
+            return uploadResult.Location;
+        } catch (err) {
+            this.logger.error('Error uploading file to S3:', err);
+            throw err;
         }
     }
 }
