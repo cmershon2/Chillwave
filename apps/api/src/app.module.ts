@@ -11,7 +11,7 @@ import { EmailModule } from './email/email.module';
 import { ImageModule } from './image/image.module';
 import { UploadModule } from './upload/upload.module';
 import { QueueModule } from './queue/queue.module';
-import { VideoEncodingModule } from './upload/video-encoding/video-encoding.module';
+import { S3clientModule } from './s3client/s3client.module';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import { VideoEncodingModule } from './upload/video-encoding/video-encoding.modu
     ImageModule,
     UploadModule,
     QueueModule,
-    VideoEncodingModule,
+    S3clientModule,
   ],
   controllers: [AppController],
   providers: [AppService],
