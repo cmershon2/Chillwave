@@ -4,8 +4,8 @@ import { Queue, Job } from 'bullmq';
 import ffmpeg from 'fluent-ffmpeg';
 import { promises as fs } from 'fs';
 import ffmpegStatic from 'ffmpeg-static';
-import { transcodeVideo } from '../utils/queue.utils';
-import { S3ClientService } from 'src/s3-client/s3-client.service';
+import { S3ClientService } from '../../s3-client/s3-client.service';
+import { transcodeVideo } from '../utils/transcoding.utils';
 
 @Injectable()
 @Processor('{video-transcoding}')

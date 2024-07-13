@@ -2,7 +2,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { TranscodingProcessor } from './processors/transcoding.processor';
 import { ContentFilteringProcessor } from './processors/content-filtering.processor';
-import { S3ClientModule } from 'src/s3-client/s3-client.module';
+import { S3ClientModule } from '../s3-client/s3-client.module';
 
 @Module({
   imports: [
