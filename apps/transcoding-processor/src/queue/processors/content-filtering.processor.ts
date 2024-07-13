@@ -1,10 +1,12 @@
 import { InjectQueue, OnWorkerEvent, Processor, WorkerHost } from "@nestjs/bullmq";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Job, Queue } from "bullmq";
 
 @Injectable()
 @Processor('{video-content-filtering}')
 export class ContentFilteringProcessor extends WorkerHost {
+    
+    private readonly logger = new Logger(ContentFilteringProcessor.name);
 
     constructor(
         @InjectQueue('{video-content-filtering}') private readonly contentFilteringQueue: Queue,
@@ -18,22 +20,22 @@ export class ContentFilteringProcessor extends WorkerHost {
 
     @OnWorkerEvent('completed')
     async onCompleted(job: Job, result: any) {
-        console.log(`Job ${job.id} of type ${job.name} has been completed.`);
+        this.logger.log(`Job ${job.id} of type ${job.name} has been completed.`);
     }
 
     @OnWorkerEvent('failed')
     async onFailed(job: Job, error: any) {
-        console.error(`Job ${job.id} of type ${job.name} has failed. Error: ${error}`);
+        this.logger.error(`Job ${job.id} of type ${job.name} has failed. Error: ${error}`);
     }
 
     @OnWorkerEvent('ready')
     async onReady() {
-        console.log('Starting Content-Filtering Worker...');
+        this.logger.log('Starting Worker...');
         try {
-        const counts = await this.contentFilteringQueue.getJobCounts();
-        console.log('Queue Connected:', counts);
+            await this.contentFilteringQueue.getJobCounts();
+            this.logger.log('Successfully Connected to Queue');
         } catch (error) {
-        console.error('Error Connecting to Queue:', error);
+            this.logger.error('Error Connecting to Queue:', error);
         }
         console.log('Worker is ready');
     }

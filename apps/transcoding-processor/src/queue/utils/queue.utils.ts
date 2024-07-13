@@ -1,26 +1,16 @@
-import { Readable } from "stream";
 import { Constants } from "../constants/queue.constants";
 import { promises as fs } from 'fs';
 import { spawn } from "child_process";
-import AWS from "aws-sdk";
+import { S3ClientService } from "src/s3-client/s3-client.service";
+import { S3FileUpload } from "src/s3-client/dto/s3-file-upload.dto";
 
-export async function transcodeVideo(videoBuffer : Buffer, id: string, showLogs: boolean) : Promise<string>
+export async function transcodeVideo(s3Client : S3ClientService, id: string, showLogs: boolean) : Promise<string>
 {
     return new Promise(async (resolve, reject) => {
         const outputPath = `/tmp/${id}`;
         const commands = await buildCommands(outputPath);
-        const masterPlaylist = await writePlaylist(outputPath, id);
-
-        const s3Params = { Bucket: 'chillwave-video-intake', Key: id };
-        const s3 = new AWS.S3({
-            s3ForcePathStyle: false,
-            endpoint: process.env.S3_ENDPOINT,
-            region: process.env.S3_REGION,
-            credentials: {
-            accessKeyId: process.env.S3_ACCESS_KEY_ID,
-            secretAccessKey: process.env.S3_ACCESS_KEY_SECRET,
-            }
-        });
+        
+        await writePlaylist(outputPath, id);
 
         const ffmpeg = spawn('ffmpeg', commands, {
             stdio: ['pipe', 'pipe', 'pipe'],
@@ -46,8 +36,8 @@ export async function transcodeVideo(videoBuffer : Buffer, id: string, showLogs:
             if (code == 0){
 
                 await updatePlaylistWithCDN(outputPath, id);
-                await fileUploadPromises(s3, outputPath, id);
-                await deleteSourceFile(s3, s3Params)
+                await fileUploadPromises(s3Client, outputPath, id);
+                await s3Client.deleteFile('chillwave-video-intake', id);
 
                 return resolve('Video Successfully Uploaded');
             }
@@ -57,7 +47,8 @@ export async function transcodeVideo(videoBuffer : Buffer, id: string, showLogs:
         })
 
         // pipe in read stream as input
-        ffmpeg.stdin.write(videoBuffer);
+        const videoStream = await s3Client.getVideoStream('chillwave-video-intake', id)
+        videoStream.pipe(ffmpeg.stdin);
         ffmpeg.stdin.end();
     });
 }
@@ -124,7 +115,7 @@ async function updatePlaylistWithCDN(outputPath: string, id: string) : Promise<v
     }
 }
 
-async function fileUploadPromises(s3: AWS.S3, outputPath: string, id: string){
+async function fileUploadPromises(s3Client: S3ClientService, outputPath: string, id: string){
     try {
         const files = await fs.readdir(outputPath);
         
@@ -132,32 +123,22 @@ async function fileUploadPromises(s3: AWS.S3, outputPath: string, id: string){
             const filePath = `${outputPath}/${file}`;
             const fileContent = await fs.readFile(filePath);
         
-            const params = { 
-                Bucket: 'chillwave-video-egress', 
-                Key: `${id}/${file}`, 
-                Body: fileContent,
-                ACL: 'public-read',
-                CacheControl: 'max-age=31536000',
+            const params: S3FileUpload = { 
+                bucketName: 'chillwave-video-egress', 
+                objectKey: `${file}`,
+                filePath: `${id}`,
+                file: fileContent,
+                acl: 'public-read',
+                cacheControl: 'max-age=31536000',
             };
         
             console.log(`⛅ Uploading ${file} to s3`);
-            return s3.putObject(params).promise();
+
+            const upload = await s3Client.uploadFile(params);
+            return upload;
         }));
     } catch (error) {
         console.error('Error during file upload:', error);
         throw error;
     }
 };
-
-async function deleteSourceFile(s3: AWS.S3, s3Params: AWS.S3.GetObjectRequest) {
-    return new Promise((resolve, reject) => {
-        s3.deleteObject(s3Params, (err, data) => {
-            if (err) {
-                console.error('Error deleting source file from S3:', err);
-                return reject('Error deleting source file from S3');
-            }
-            console.log('Source file successfully deleted from S3');
-            resolve(data);
-        });
-    });
-}

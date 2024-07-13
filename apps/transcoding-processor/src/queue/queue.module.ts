@@ -1,6 +1,8 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { TranscodingProcessor } from './processors/transcoding.processor';
+import { ContentFilteringProcessor } from './processors/content-filtering.processor';
+import { S3ClientModule } from 'src/s3-client/s3-client.module';
 
 @Module({
   imports: [
@@ -20,7 +22,8 @@ import { TranscodingProcessor } from './processors/transcoding.processor';
     BullModule.registerQueue({
       name: '{video-content-filtering}',
     }),
+    S3ClientModule,
   ],
-  providers: [TranscodingProcessor],
+  providers: [TranscodingProcessor, ContentFilteringProcessor],
 })
 export class QueueModule {}
