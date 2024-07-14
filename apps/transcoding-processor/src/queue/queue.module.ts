@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { TranscodingProcessor } from './processors/transcoding.processor';
 import { ContentFilteringProcessor } from './processors/content-filtering.processor';
 import { S3ClientModule } from '../s3-client/s3-client.module';
+import { ContentFilterModule } from '../content-filter/content-filter.module';
 
 @Module({
   imports: [
@@ -17,12 +18,16 @@ import { S3ClientModule } from '../s3-client/s3-client.module';
       })
     }),
     BullModule.registerQueue({
+      name: '{process-video}',
+    }),
+    BullModule.registerQueue({
       name: '{video-transcoding}',
     }),
     BullModule.registerQueue({
       name: '{video-content-filtering}',
     }),
     S3ClientModule,
+    ContentFilterModule
   ],
   providers: [TranscodingProcessor, ContentFilteringProcessor],
 })

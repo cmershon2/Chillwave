@@ -1,6 +1,7 @@
 import { InjectQueue, OnWorkerEvent, Processor, WorkerHost } from "@nestjs/bullmq";
 import { Injectable, Logger } from "@nestjs/common";
 import { Job, Queue } from "bullmq";
+import { ContentFilterService } from "src/content-filter/content-filter.service";
 
 @Injectable()
 @Processor('{video-content-filtering}')
@@ -10,12 +11,33 @@ export class ContentFilteringProcessor extends WorkerHost {
 
     constructor(
         @InjectQueue('{video-content-filtering}') private readonly contentFilteringQueue: Queue,
+        @InjectQueue('{video-transcoding}') private readonly transcodingQueue: Queue,
+        private readonly contentFilterService: ContentFilterService,
     ) {
         super();
     }
 
     async process(job: Job<any, any, string>) {
-        
+
+        try {
+            // Run video through content filter
+            const filterResult = await this.contentFilterService.detectExplicitVideoContent(job.data.key);
+
+            return {
+                key: job.data.key,
+                passed: filterResult.passed
+            };
+        } catch (error) {
+            // Handle errors
+            console.error('Error processing video upload:', error);
+            await job.moveToFailed(new Error(`Error processing video upload: ${error}`), job.token);
+            throw error;
+        }
+    }
+
+    @OnWorkerEvent('active')
+    async onActive(job: Job){
+        this.logger.log(`Job ${job.id} of type ${job.name} has been started.`)
     }
 
     @OnWorkerEvent('completed')
