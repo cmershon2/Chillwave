@@ -14,6 +14,7 @@ module.exports = {
       default: `nps prepare.web prepare.api prepare.transcoding`,
       web: `yarn`,
       api: `nps prepare.docker prisma.migrate.dev`,
+      transcoding: `nps prepare.docker`,
       docker: "docker compose up -d",
       ci: {
         web: `npx turbo prune --scope=web && cd out && yarn install --frozen-lockfile`,
