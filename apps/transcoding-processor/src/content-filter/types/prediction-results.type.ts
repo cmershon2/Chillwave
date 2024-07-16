@@ -1,9 +1,9 @@
-import { FramePrediction } from "./frame-prediction.type";
+import { FramePrediction } from './frame-prediction.type';
 
 export type PredictionResults = {
-    passed: boolean;
-    reason: string;
-    review: boolean;
-    flaggedFrames: number[];
-    frameData: FramePrediction[];
-}
+  passed: boolean;
+  reason: string;
+  review: boolean;
+  flaggedFrames: number[];
+  frameData: FramePrediction[];
+};

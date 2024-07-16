@@ -5,6 +5,6 @@ import { S3ClientModule } from 'src/s3-client/s3-client.module';
 @Module({
   imports: [S3ClientModule],
   providers: [ContentFilterService],
-  exports: [ContentFilterService]
+  exports: [ContentFilterService],
 })
 export class ContentFilterModule {}

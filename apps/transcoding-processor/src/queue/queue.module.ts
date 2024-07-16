@@ -15,7 +15,7 @@ import { ContentFilterModule } from '../content-filter/content-filter.module';
           username: process.env.REDIS_USERNAME,
           password: process.env.REDIS_PASSWORD,
         },
-      })
+      }),
     }),
     BullModule.registerQueue({
       name: '{video-transcoding}',
@@ -24,7 +24,7 @@ import { ContentFilterModule } from '../content-filter/content-filter.module';
       name: '{video-content-filtering}',
     }),
     S3ClientModule,
-    ContentFilterModule
+    ContentFilterModule,
   ],
   providers: [TranscodingProcessor, ContentFilteringProcessor],
 })
