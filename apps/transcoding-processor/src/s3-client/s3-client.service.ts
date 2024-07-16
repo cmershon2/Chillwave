@@ -56,7 +56,7 @@ export class S3ClientService {
         const pass = new PassThrough();
         const params = {
             Bucket: data.bucketName,
-            Key: data.filePath ? `${data.filePath}${data.objectKey}` : data.objectKey,
+            Key: data.filePath ? `${data.filePath}/${data.objectKey}` : data.objectKey,
             Body: pass,
             ContentType: data.contentType,
             ACL: data.acl,
