@@ -14,11 +14,8 @@ import { ContentFilterModule } from '../content-filter/content-filter.module';
           port: +process.env.REDIS_PORT,
           username: process.env.REDIS_USERNAME,
           password: process.env.REDIS_PASSWORD,
-        }
+        },
       })
-    }),
-    BullModule.registerQueue({
-      name: '{process-video}',
     }),
     BullModule.registerQueue({
       name: '{video-transcoding}',
