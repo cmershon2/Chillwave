@@ -1,9 +1,6 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { QueueService } from './queue.service';
-import { ContentFilterModule } from '../upload/content-filter/content-filter.module';
-import { VideoUploadProcessor } from './processors/video-upload.processor';
-import { S3UploadModule } from 'src/upload/s3-upload/s3-upload.module';
 
 @Module({
   imports: [
@@ -17,8 +14,8 @@ import { S3UploadModule } from 'src/upload/s3-upload/s3-upload.module';
         }
       })
     }),
-    BullModule.registerQueue({
-      name: '{video-upload}',
+    BullModule.registerFlowProducer({
+      name: '{video-processing-flow}',
     }),
     BullModule.registerQueue({
       name: '{video-content-filtering}',
@@ -26,10 +23,10 @@ import { S3UploadModule } from 'src/upload/s3-upload/s3-upload.module';
     BullModule.registerQueue({
       name: '{video-transcoding}',
     }),
-    ContentFilterModule,
-    S3UploadModule,
   ],
-  providers: [QueueService, VideoUploadProcessor],
+  providers: [
+    QueueService, 
+  ],
   exports: [QueueService],
 })
 export class QueueModule {}
