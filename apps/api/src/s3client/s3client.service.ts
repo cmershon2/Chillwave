@@ -81,8 +81,9 @@ export class S3clientService implements OnModuleInit {
             });
 
             upload.on('httpUploadProgress', (progress) => {
+                console.log(JSON.stringify(progress))
                 let completionCalculation = Math.round((progress.loaded/progress.total) * 100);
-                console.log(`Upload Progress: ${completionCalculation}% - ${progress.loaded}/${progress.total}`);
+                this.logger.log(`Upload Progress: ${completionCalculation}% - ${progress.loaded}/${progress.total}`);
             });
 
             const uploadResult = await upload.done();

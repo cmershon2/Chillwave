@@ -13,7 +13,7 @@ export async function extractFramesFromVideo(key: string, s3Client : S3ClientSer
 
   const ffmpegParams = [
     '-loglevel', 'quiet',
-    '-i', '-',
+    '-i', 'pipe:0',
     '-an',
     '-c:v', 'mjpeg',
     '-pix_fmt', 'yuvj422p',
@@ -27,7 +27,7 @@ export async function extractFramesFromVideo(key: string, s3Client : S3ClientSer
     pipe2jpeg.on('data', (jpegBuffer) => frames.push(jpegBuffer));
 
     const ffmpeg = spawn('ffmpeg', ffmpegParams, {
-      stdio: ['pipe', 'pipe', 'ignore'],
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     ffmpeg.on('error', (error) => {
@@ -44,9 +44,19 @@ export async function extractFramesFromVideo(key: string, s3Client : S3ClientSer
       }
     });
 
-    ffmpeg.stdout.pipe(pipe2jpeg);
+    // pipe in read stream as input
     const videoStream = await s3Client.getVideoStream('chillwave-video-intake', key)
     videoStream.pipe(ffmpeg.stdin);
+
+    videoStream.on('error', (error)=> {
+      console.error('Error streaming video: ',error);
+    })
+
+    videoStream.on('finish', ()=>{
+      ffmpeg.stdin.end();
+    })
+
+    ffmpeg.stdout.pipe(pipe2jpeg);
   });
 }
 
