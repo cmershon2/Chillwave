@@ -49,7 +49,10 @@ export async function transcodeVideo(s3Client : S3ClientService, id: string, sho
         // pipe in read stream as input
         const videoStream = await s3Client.getVideoStream('chillwave-video-intake', id)
         videoStream.pipe(ffmpeg.stdin);
-        ffmpeg.stdin.end();
+        
+        videoStream.on('end', ()=>{
+            ffmpeg.stdin.end();
+        })
     });
 }
 
