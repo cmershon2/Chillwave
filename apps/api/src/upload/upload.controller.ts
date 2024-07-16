@@ -24,11 +24,13 @@ export class UploadController {
         }
 
         await this.s3Client.uploadFile(file.buffer, 'chillwave-video-intake', fileName, '')
-        await this.queueService.enqueueVideoUpload(data);
+        const processVideo = await this.queueService.processVideo(data);
+        
         return { 
             message: 'Video upload queued',
             data: {
-                key: fileName
+                key: fileName,
+                job: processVideo,
             }
         };
     }
@@ -41,11 +43,12 @@ export class UploadController {
             key: id
         }
 
-        await this.queueService.enqueueVideoUpload(data);
+        const processVideo = await this.queueService.processVideo(data);
         return { 
             message: 'Video upload queued',
             data: {
-                key: id
+                key: id,
+                job: processVideo,
             }
         };
     }
