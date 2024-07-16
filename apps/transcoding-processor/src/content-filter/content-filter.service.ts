@@ -26,12 +26,28 @@ export class ContentFilterService {
     const frames = await extractFramesFromVideo(key, this.s3Client);
     let results: PredictionResults = { passed: true, review: false, reason: '', flaggedFrames: [], frameData: [] };
 
-    console.log('extraction complete')
+    console.log(`Extraction complete, found ${frames.length} frames`);
 
-    // Classify each frame using the TensorFlow model
-    const predictions = await Promise.all(
-      frames.map((frame, index) => this.classifyFrame(frame, index)),
-    );
+    let predictions = [];
+
+    for(let i = 0; i < frames.length; i += Constants.VIDEO_FRAME_BATCH_SIZE){
+      console.log(`Processing frames ${i} to ${i + Constants.VIDEO_FRAME_BATCH_SIZE}`)
+
+      let maxFrames = i + Constants.VIDEO_FRAME_BATCH_SIZE;
+      if(maxFrames > frames.length){
+        maxFrames = frames.length;
+      }
+      const batch = frames.slice(i, );
+
+      // Classify each frame in batch using the TensorFlow model
+      const batch_predictions = await Promise.all(
+        batch.map((frame, index) => this.classifyFrame(frame, index)),
+      );
+
+      predictions.concat(batch_predictions);
+    }
+
+    console.log(`Classified ${predictions.length} frames.`)
 
     // Determine if any frame is classified as explicit content
     const reviewFrames = predictions.filter((prediction) => prediction.isExplicit==true && prediction.review==true)
