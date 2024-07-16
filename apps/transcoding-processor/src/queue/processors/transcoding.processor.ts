@@ -8,7 +8,12 @@ import { S3ClientService } from '../../s3-client/s3-client.service';
 import { transcodeVideo } from '../utils/transcoding.utils';
 
 @Injectable()
-@Processor('{video-transcoding}')
+@Processor('{video-transcoding}', 
+  { 
+    concurrency: 1, 
+    lockDuration: 600000*3, 
+    stalledInterval: 600000 
+  })
 export class TranscodingProcessor extends WorkerHost {
 
   private readonly logger = new Logger(TranscodingProcessor.name);
@@ -22,13 +27,8 @@ export class TranscodingProcessor extends WorkerHost {
   }
 
   async process(job: Job<any, any, string>) {
-    this.logger.log('Start transcoding', job.data);
 
     const tempDir = `/tmp/${job.data.key}`;
-    const inputParams = { Bucket: 'chillwave-video-intake', Key: job.data.key };
-
-    this.logger.log(`📁 Temp Dir: ${tempDir}`);
-    this.logger.log(`🥤 S3 Input Params:`, JSON.stringify(inputParams, null, 2));
 
     try {
       await fs.mkdir(tempDir, { recursive: true });

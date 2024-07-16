@@ -4,7 +4,12 @@ import { Job, Queue } from "bullmq";
 import { ContentFilterService } from "src/content-filter/content-filter.service";
 
 @Injectable()
-@Processor('{video-content-filtering}')
+@Processor('{video-content-filtering}', 
+    { 
+        concurrency: 1, 
+        lockDuration: 600000*3, 
+        stalledInterval: 600000
+    })
 export class ContentFilteringProcessor extends WorkerHost {
     
     private readonly logger = new Logger(ContentFilteringProcessor.name);
@@ -23,10 +28,17 @@ export class ContentFilteringProcessor extends WorkerHost {
             // Run video through content filter
             const filterResult = await this.contentFilterService.detectExplicitVideoContent(job.data.key);
 
-            return {
-                key: job.data.key,
-                passed: filterResult.passed
-            };
+            if(filterResult.passed){
+                return {
+                    key: job.data.key,
+                    passed: filterResult.passed
+                };
+            } else {
+                // handle excessive explicit content
+                // flag account & delete video
+
+                throw 'Excessive explicit content found';
+            }
         } catch (error) {
             // Handle errors
             console.error('Error processing video upload:', error);
@@ -59,6 +71,6 @@ export class ContentFilteringProcessor extends WorkerHost {
         } catch (error) {
             this.logger.error('Error Connecting to Queue:', error);
         }
-        console.log('Worker is ready');
+        this.logger.log('Worker is ready');
     }
 }
