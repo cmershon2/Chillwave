@@ -21,7 +21,6 @@ export class ContentFilteringProcessor extends WorkerHost {
     @InjectQueue('{video-content-filtering}')
     private readonly contentFilteringQueue: Queue,
     @InjectQueue('{video-transcoding}')
-    private readonly transcodingQueue: Queue,
     private readonly contentFilterService: ContentFilterService,
   ) {
     super();
@@ -43,6 +42,7 @@ export class ContentFilteringProcessor extends WorkerHost {
       } else {
         // handle excessive explicit content
         // flag account & delete video
+        console.log('Excessive explicit content found');
 
         throw 'Excessive explicit content found';
       }
