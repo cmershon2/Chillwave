@@ -35,25 +35,28 @@ export class ContentFilterService {
     console.log(`Extraction complete, found ${frames.length} frames`);
 
     const predictions = [];
+    const batchPromises = [];
 
     for (let i = 0; i < frames.length; i += Constants.VIDEO_FRAME_BATCH_SIZE) {
-      console.log(
-        `Processing frames ${i} to ${i + Constants.VIDEO_FRAME_BATCH_SIZE}`,
-      );
 
       let maxFrames = i + Constants.VIDEO_FRAME_BATCH_SIZE;
       if (maxFrames > frames.length) {
         maxFrames = frames.length;
       }
-      const batch = frames.slice(i);
 
-      // Classify each frame in batch using the TensorFlow model
-      const batch_predictions = await Promise.all(
-        batch.map((frame, index) => this.classifyFrame(frame, index)),
+      console.log(
+        `Processing frames ${i} to ${maxFrames}`,
       );
 
-      predictions.concat(batch_predictions);
+      const batch = frames.slice(i, maxFrames);
+
+      // Classify each frame in batch using the TensorFlow model
+      batch.map((frame, index) => batchPromises.push(this.classifyFrame(frame, index)));
+
     }
+
+    const batchResults = await Promise.all(batchPromises)
+    predictions.push(...batchResults)
 
     console.log(`Classified ${predictions.length} frames.`);
 
@@ -66,6 +69,9 @@ export class ContentFilterService {
       (prediction) =>
         prediction.isExplicit == true && prediction.review == false,
     );
+
+    console.log('Review Frames: ', reviewFrames);
+    console.log('Explicit Frames: ', explicitFrames);
 
     // Calculate % of possible explicit content
     const explicitThreshold = explicitFrames.length / frames.length;
@@ -97,10 +103,7 @@ export class ContentFilterService {
     return results;
   }
 
-  private async classifyFrame(
-    frame: Buffer,
-    index: number,
-  ): Promise<FramePrediction> {
+  private async classifyFrame( frame: Buffer, index: number): Promise<FramePrediction> {
     let preprocessedFrame;
 
     try {
